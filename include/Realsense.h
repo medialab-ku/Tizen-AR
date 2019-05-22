@@ -74,12 +74,12 @@ static void get_field_of_view(const rs2::stream_profile& stream)
     }
 }
 
-class RealSense
+class Realsense
 {
 public:
-    RealSense();
-    ~RealSense();
-    void GetImage(cv::Mat& left, cv::Mat& depth);
+    Realsense();
+    ~Realsense();
+    void GetImage(cv::Mat& rgb, cv::Mat& depth);
 private:
     rs2::pipeline pipe;
 

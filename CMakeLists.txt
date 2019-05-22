@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(tizen-renderer)
+project(tizen-server)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -32,11 +32,8 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
 INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/Thirdparty/include/
-    ${PROJECT_SOURCE_DIR}/Thirdparty/include/DBoW2
-    ${PROJECT_SOURCE_DIR}/Thirdparty/include/g2o
-    ${PROJECT_SOURCE_DIR}/Thirdparty/include/ORB_SLAM2
-    ${PROJECT_SOURCE_DIR}/Thirdparty/include/ZED
+    ${PROJECT_SOURCE_DIR}/simple-net/include
+    ${PROJECT_SOURCE_DIR}/Thirdparty/include
     ${PROJECT_SOURCE_DIR}/scenes
 )
 

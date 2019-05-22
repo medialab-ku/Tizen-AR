@@ -1,4 +1,4 @@
-#include "RealSense.h"
+#include "realsense.h"
 
 RealSense::RealSense()
 {
@@ -16,11 +16,11 @@ RealSense::~RealSense()
     pipe.stop();
 }
 
-void RealSense::GetImage(cv::Mat& left, cv::Mat& depth)
+void RealSense::GetImage(cv::Mat& rgb, cv::Mat& depth)
 {
     rs2::frameset data = pipe.wait_for_frames();
     rs2::frame c = data.get_color_frame();
     rs2::frame d = data.get_depth_frame();
-    left = frame_to_mat(c);
+    rgb = frame_to_mat(c);
     depth = depth_frame_to_meters(pipe, d);
 }

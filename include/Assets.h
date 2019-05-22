@@ -4,6 +4,11 @@
 #include <map>
 #include <string>
 #include <dali-toolkit/dali-toolkit.h>
+#include <dirent.h>
+#include <sys/types.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
 #include "obj-loader.h"
 
 class Assets
@@ -18,9 +23,9 @@ class Assets
         static bool GetShader(const std::string vertName, const std::string fragName, Dali::Shader &buff);
 
     private:
-        static std::map<std::string, ObjLoader> mObjs;
-        static std::map<std::string, Dali::PixelData> mImgs;
-        static std::map<std::string, std::stringstream> mShaderCodes;
+        static std::map<std::string, ObjLoader> _objs;
+        static std::map<std::string, Dali::PixelData> _imgs;
+        static std::map<std::string, std::stringstream> _shaderCodes;
 };
 
 #endif

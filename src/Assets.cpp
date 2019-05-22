@@ -1,12 +1,8 @@
 #include "Assets.h"
-#include <dirent.h>
-#include <sys/types.h>
-#include <iostream>
-#include <fstream>
-#include <sstream>
 
-std::map<std::string, Dali::PixelData> Assets::mImgs;
-std::map<std::string, ObjLoader> Assets::mObjs;
+std::map<std::string, Dali::PixelData> Assets::_imgs;
+std::map<std::string, ObjLoader> Assets::_objs;
+std::map<std::string, std::stringstream> Assets::_shaderCodes;
 
 void
 Assets::Init()
@@ -36,7 +32,7 @@ Assets::LoadAllTextures()
             std::string full_path = tex_path + std::string(entry->d_name);
 
             Dali::PixelData pixels = Dali::Toolkit::SyncImageLoader::Load( full_path );
-            mImgs.insert(std::make_pair(std::string(entry->d_name), pixels));
+            _imgs.insert(std::make_pair(std::string(entry->d_name), pixels));
         }
         catch(const std::exception& e)
         {
@@ -76,7 +72,7 @@ Assets::LoadAllObjs()
             file.read(&data[0], size);
             obj.LoadObject(&data[0], size);
 
-            mObjs.insert(std::make_pair(std::string(entry->d_name), obj));
+            _objs.insert(std::make_pair(std::string(entry->d_name), obj));
         }
         catch(const std::exception& e)
         {
@@ -114,7 +110,7 @@ Assets::LoadAllShaders()
 		    stream << file.rdbuf();
 		    file.close();
             
-            mShaderCodes.insert(std::make_pair(std::string(entry->d_name), stream));
+            _shaderCodes.insert(std::make_pair(std::string(entry->d_name), stream));
         }
         catch(const std::exception& e)
         {
@@ -128,13 +124,13 @@ Assets::LoadAllShaders()
 bool
 Assets::GetTexture(const std::string name, Dali::Texture &buff)
 {
-    if (mImgs.count(name) == 0)
+    if (_imgs.count(name) == 0)
     {
         return false;
     } 
     else
     {
-        auto img = mImgs.find(name)->second;
+        auto img = _imgs.find(name)->second;
         buff = Texture::New( TextureType::TEXTURE_2D, img.GetPixelFormat(), img.GetWidth(), img.GetHeight() );
         buff.Upload( img, 0, 0, 0, 0, img.GetWidth(), img.GetHeight() );
         return true;
@@ -144,13 +140,13 @@ Assets::GetTexture(const std::string name, Dali::Texture &buff)
 bool
 Assets::GetObj(const std::string name, ObjLoader &buff)
 {
-    if (mObjs.count(name) == 0)
+    if (_objs.count(name) == 0)
     {
         return false;
     }
     else
     {
-        buff = mObjs.find(name)->second;
+        buff = _objs.find(name)->second;
         return true;
     }
 }
@@ -158,15 +154,15 @@ Assets::GetObj(const std::string name, ObjLoader &buff)
 bool 
 Assets::GetShader(const std::string vertName, const std::string fragName, Dali::Shader &buff)
 {
-    if (mShaderCodes.count(vertName) == 0
-        || mShaderCodes.count(fragName) == 0)
+    if (_shaderCodes.count(vertName) == 0
+        || _shaderCodes.count(fragName) == 0)
     {
         return false;
     }
     else
     {
-        auto vertCode = mShaderCodes.find(vertName)->second;
-        auto fragCode = mShaderCodes.find(fragName)->second;
+        auto vertCode = _shaderCodes.find(vertName)->second;
+        auto fragCode = _shaderCodes.find(fragName)->second;
         buff = Dali::Shader::New(vertCode.str().c_str(), fragCode.str().c_str());
         return true;
     }
