@@ -32,7 +32,7 @@ LIST(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake_modules)
 
 INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/include
-    ${PROJECT_SOURCE_DIR}/simple-net/include
+    ${PROJECT_SOURCE_DIR}/simple-net
     ${PROJECT_SOURCE_DIR}/Thirdparty/include
     ${PROJECT_SOURCE_DIR}/scenes
 )

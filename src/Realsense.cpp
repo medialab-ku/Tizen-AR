@@ -1,6 +1,6 @@
-#include "realsense.h"
+#include "Realsense.h"
 
-RealSense::RealSense()
+Realsense::Realsense()
 {
     rs2::log_to_console(RS2_LOG_SEVERITY_ERROR);
     
@@ -11,12 +11,12 @@ RealSense::RealSense()
     get_field_of_view(prof.get_stream(RS2_STREAM_COLOR));
 }
 
-RealSense::~RealSense()
+Realsense::~RealSense()
 {
     pipe.stop();
 }
 
-void RealSense::GetImage(cv::Mat& rgb, cv::Mat& depth)
+void Realsense::GetImage(cv::Mat& rgb, cv::Mat& depth)
 {
     rs2::frameset data = pipe.wait_for_frames();
     rs2::frame c = data.get_color_frame();
