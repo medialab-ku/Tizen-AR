@@ -1,5 +1,8 @@
 #include "SensorDevice.h"
 
+SensorDevice* SensorDevice::_tum;
+SensorDevice* SensorDevice::_rs;
+
 SensorDevice* SensorDevice::Get(SensorDevice::Type prefered)
 {
     static bool init = false;

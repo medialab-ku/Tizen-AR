@@ -1,4 +1,4 @@
-#include "Realsense.h"
+#include "SensorDevice.h"
 
 Realsense::~Realsense()
 {

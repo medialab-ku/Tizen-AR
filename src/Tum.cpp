@@ -1,4 +1,4 @@
-#include "Tum.h"
+#include "SensorDevice.h"
 
 void Tum::_LoadImages(const std::string &strAssociationFilename, const std::string &strSeqFilename)
 {
