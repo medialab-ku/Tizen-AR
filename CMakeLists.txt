@@ -37,7 +37,7 @@ INCLUDE_DIRECTORIES(
     ${PROJECT_SOURCE_DIR}/scenes
 )
 
-FILE(GLOB PROJECT_SRC "src/*.cpp")
+FILE(GLOB PROJECT_SRC "src/*.cpp" "simple-net/*.cpp")
 ADD_EXECUTABLE(${PROJECT_NAME} ${PROJECT_SRC})
 
 ##################################################

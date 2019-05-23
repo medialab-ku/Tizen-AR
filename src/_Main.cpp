@@ -104,21 +104,20 @@ class UbuntuServer : public Dali::ConnectionTracker
 
         void __OnKeyEvent__( const KeyEvent& event )
         {
-            // if( event.state == KeyEvent::Down )
-            // {
-            //     // cout << event.keyCode << endl;
-            //     if ( IsKey( event, Dali::DALI_KEY_ESCAPE ) || IsKey( event, Dali::DALI_KEY_BACK ) )
-            //     {
-            //         mApplication.Quit();
-            //     }
+            if( event.state == KeyEvent::Down )
+            {
+                // cout << event.keyCode << endl;
+                if ( IsKey( event, Dali::DALI_KEY_ESCAPE ) || IsKey( event, Dali::DALI_KEY_BACK ) )
+                {
+                    _application.Quit();
+                }
 
-            //     // q pressed
-            //     if(event.keyCode == 24)
-            //     {
-            //         mUpdatePlane = !mUpdatePlane;
-            //         cout << "plane detection mode changed to" << mUpdatePlane << endl;
-            //     }
-            // }
+                // q pressed
+                if(event.keyCode == 24)
+                {
+                    Net::BeginServer("192.168.0.33", 9999);
+                }
+            }
         }
 
         // bool __OnTouch__(Dali::Actor actor, const Dali::TouchData &touch)
@@ -185,7 +184,13 @@ class UbuntuServer : public Dali::ConnectionTracker
 
         void _SendData()
         {
+            if (not Net::IsConnected()) return;
             
+            int size = _rgb.total() * _rgb.elemSize();
+            char *bytes = new char[size];  // you will have to delete[] that later
+            std::memcpy(bytes, _rgb.data, size);
+            Net::Send(Net::ID_IMG, bytes, size);
+            std::cout << "Send " << size << "bytes" << std::endl;
         }
 };
 
