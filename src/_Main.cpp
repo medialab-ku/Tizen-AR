@@ -4,6 +4,7 @@
 #include "Realsense.h"
 #include "Background.h"
 #include "Slam.h"
+#include "SensorDevice.h"
 
 const unsigned int      TICK_RATE           = 30;           // per second
 const float             Focal_X             = 609.275f;     // realsense
@@ -23,6 +24,7 @@ class UbuntuServer : public Dali::ConnectionTracker
         Slam _slam;
         Realsense _realsense;
         cv::Mat _rgb, _depth;
+        SensorDevice *_sensor;
 
         // Dali
         Dali::Stage _stage;
@@ -41,12 +43,25 @@ class UbuntuServer : public Dali::ConnectionTracker
         std::chrono::time_point<std::chrono::high_resolution_clock> _oldTime;
         std::chrono::time_point<std::chrono::high_resolution_clock> _initTime;
 
+        int error;
+
     public:
         UbuntuServer(Dali::Application &application)
             : _application(application)
         {
+            error = 0;
+
+            _sensor = SensorDevice::Get(SensorDevice::Type::Realsense);
+            if (_sensor == nullptr)
+            {
+                error = -1;
+                return;
+            }
+
             _application.InitSignal().Connect(this, &UbuntuServer::_Create);
         }
+
+        int GetError() { return error; }
 
     private:
         void _Create(Dali::Application &application)
@@ -93,7 +108,7 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _oldTime = _currentTime;
 
                 // Update SLAM
-                _realsense.GetImage(_rgb, _depth);
+                _sensor->GetImage(_rgb, _depth);
                 _slam.Update(_rgb, _depth, elapsedTime, _camera);
                 
                 // Plane detection
@@ -147,5 +162,6 @@ int DALI_EXPORT_API main(int argc, char **argv)
     Assets::Init();
     Dali::Application application = Dali::Application::New(&argc, &argv);
     UbuntuServer server(application);
-    application.MainLoop();
+    int error = server.GetError();
+    if (not error) application.MainLoop();
 }

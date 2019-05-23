@@ -1,12 +1,6 @@
-#include "TUM.h"
+#include "Tum.h"
 
-TUM::TUM()
-    : seq(0), maxSeq(0)
-{
-
-}
-
-void TUM::LoadImages(const std::string &strAssociationFilename, const std::string &strSeqFilename)
+void Tum::_LoadImages(const std::string &strAssociationFilename, const std::string &strSeqFilename)
 {
     std::ifstream fAssociation;
     fAssociation.open(strAssociationFilename.c_str());
@@ -37,11 +31,24 @@ void TUM::LoadImages(const std::string &strAssociationFilename, const std::strin
     maxSeq = imRGB.size() - 1;
 }
 
-void TUM::GetImage(cv::Mat& left, cv::Mat& depth)
+void Tum::Init()
+{
+    seq = 0;
+    maxSeq = 0;
+    _LoadImages("../res/SLAM/fr1_xyz.txt", "rgbd_dataset_freiburg1_xyz");
+}
+
+bool Tum::IsExists()
+{
+    DIR *dir = opendir("../res/SLAM");
+    return dir != nullptr;
+}
+
+void Tum::GetImage(cv::Mat& left, cv::Mat& right)
 {
     if(seq > maxSeq) seq = 0;
 
     left = imRGB[seq];
-    depth = imD[seq];
+    right = imD[seq];
     seq++;
 }

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.6)
-project(tizen-server)
+project(tizen-slam-sv)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
