@@ -9,6 +9,7 @@ Assets::Init()
 {
     LoadAllTextures();
     LoadAllObjs();
+    LoadAllShaders();
 }
 
 void
@@ -17,7 +18,7 @@ Assets::LoadAllTextures()
     std::string tex_path = "../res/images/";
     struct dirent *entry;
 
-    std::cout << "Loading textures..." << std::endl;
+    std::cout << "[Loading textures...]" << std::endl;
     DIR *dir = opendir(tex_path.c_str());
     if (dir == NULL) 
     {
@@ -49,7 +50,7 @@ Assets::LoadAllObjs()
     std::string obj_path = "../res/models/";
     struct dirent *entry;
 
-    std::cout << "Loading models..." << std::endl;
+    std::cout << "[Loading models...]" << std::endl;
     DIR *dir = opendir(obj_path.c_str());
     if (dir == NULL) 
     {
@@ -89,7 +90,7 @@ Assets::LoadAllShaders()
     std::string shader_path = "../res/shaders/";
     struct dirent *entry;
 
-    std::cout << "Loading shaders..." << std::endl;
+    std::cout << "[Loading shaders...]" << std::endl;
     DIR *dir = opendir(shader_path.c_str());
     if (dir == NULL) 
     {

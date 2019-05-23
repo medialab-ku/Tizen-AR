@@ -21,7 +21,6 @@ class UbuntuServer : public Dali::ConnectionTracker
         // Core
         Dali::Application _application;
         Slam _slam;
-        Realsense _realsense;
         cv::Mat _rgb, _depth;
         SensorDevice *_sensor;
 
@@ -46,10 +45,9 @@ class UbuntuServer : public Dali::ConnectionTracker
 
     public:
         UbuntuServer(Dali::Application &application)
-            : _application(application)
+            : _application(application),
+              error(0)
         {
-            error = 0;
-
             _sensor = SensorDevice::Get(SensorDevice::Type::Realsense);
             if (_sensor == nullptr)
             {
@@ -65,8 +63,21 @@ class UbuntuServer : public Dali::ConnectionTracker
     private:
         void _Create(Dali::Application &application)
         {
+            application.GetWindow().SetSize(Window::WindowSize(SCREEN_WIDTH, SCREEN_HEIGHT));
             _stage = Dali::Stage::GetCurrent();
             _camera = _stage.GetRenderTaskList().GetTask(0).GetCameraActor();
+
+            // Camera default transform
+            // Initial rotation is (0, 180, 0)
+            _camera = _stage.GetRenderTaskList().GetTask(0).GetCameraActor();
+            _stage.GetRenderTaskList().GetTask(0).SetCullMode( false );
+            _camera.SetNearClippingPlane(CAMERA_NEAR);
+            _camera.SetFarClippingPlane(CAMERA_FAR);
+            cout << "camera fov, asepct : " << _camera.GetFieldOfView() << ", " << _camera.GetAspectRatio() << endl;
+            _camera.SetAspectRatio(CAMERA_ASPECT);
+            _camera.SetFieldOfView(CAMERA_FOV);
+            _camera.SetAnchorPoint(AnchorPoint::CENTER);
+            _camera.SetParentOrigin(ParentOrigin::CENTER);
 
             _stage.KeyEventSignal().Connect( this, &UbuntuServer::_OnKeyEvent );
             //_uiLayer.TouchSignal().Connect(this, &UbuntuServer::_OnTouch);
@@ -163,4 +174,5 @@ int DALI_EXPORT_API main(int argc, char **argv)
     UbuntuServer server(application);
     int error = server.GetError();
     if (not error) application.MainLoop();
+    return 0;
 }

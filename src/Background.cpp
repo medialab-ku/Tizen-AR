@@ -41,10 +41,12 @@ void Background::Create(Dali::Stage &stage)
     Dali::Shader shader;
     if (not Assets::GetShader("vertexBackground.glsl", "fragmentBackground.glsl", shader))
     {
-        std::cout << "Failed to load shader" << std::endl;
+        std::cerr << "Background::Create(): Failed to load shader" << std::endl;
         return;
     }
     //auto shader = LoadShaders("vertexBackground.glsl", "fragmentBackground.glsl");
+
+    _bgTextureSet = Dali::TextureSet::New();
 
     auto geo = _CreateGeometry();
     auto renderer = Dali::Renderer::New(geo, shader);
@@ -77,10 +79,8 @@ void Background::UpdateImg(std::string path)
 void Background::UpdateMat(cv::Mat img)
 {
     Dali::PixelData pixels = _CVMat2Pixel(img);
-
     Dali::Texture texture = Dali::Texture::New( Dali::TextureType::TEXTURE_2D, pixels.GetPixelFormat(), pixels.GetWidth(), pixels.GetHeight() );
     texture.Upload( pixels, 0, 0, 0, 0, pixels.GetWidth(), pixels.GetHeight() );
-
     _bgTextureSet.SetTexture( 0, texture );
     _bgActor.GetRendererAt(0).SetTextures(_bgTextureSet);
 }

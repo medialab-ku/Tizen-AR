@@ -125,7 +125,6 @@ void Realsense::_get_field_of_view(const rs2::stream_profile& stream)
 void Realsense::Init()
 {
     rs2::log_to_console(RS2_LOG_SEVERITY_ERROR);
-    
     rs2::config cfg;
     cfg.enable_stream(RS2_STREAM_COLOR, 640, 480, RS2_FORMAT_RGB8, 60);
     cfg.enable_stream(RS2_STREAM_DEPTH, 640, 480, RS2_FORMAT_Z16, 60);
