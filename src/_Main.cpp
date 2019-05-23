@@ -55,40 +55,23 @@ class UbuntuServer : public Dali::ConnectionTracker
                 return;
             }
 
-            _application.InitSignal().Connect(this, &UbuntuServer::_Create);
+            _application.InitSignal().Connect(this, &UbuntuServer::__Create__);
         }
 
         int GetError() { return error; }
 
     private:
-        void _Create(Dali::Application &application)
+        void __Create__(Dali::Application &application)
         {
             application.GetWindow().SetSize(Window::WindowSize(SCREEN_WIDTH, SCREEN_HEIGHT));
             _stage = Dali::Stage::GetCurrent();
             _camera = _stage.GetRenderTaskList().GetTask(0).GetCameraActor();
-
-            // Camera default transform
-            // Initial rotation is (0, 180, 0)
-            _camera = _stage.GetRenderTaskList().GetTask(0).GetCameraActor();
-            _stage.GetRenderTaskList().GetTask(0).SetCullMode( false );
-            _camera.SetNearClippingPlane(CAMERA_NEAR);
-            _camera.SetFarClippingPlane(CAMERA_FAR);
-            cout << "camera fov, asepct : " << _camera.GetFieldOfView() << ", " << _camera.GetAspectRatio() << endl;
-            _camera.SetAspectRatio(CAMERA_ASPECT);
-            _camera.SetFieldOfView(CAMERA_FOV);
-            _camera.SetAnchorPoint(AnchorPoint::CENTER);
-            _camera.SetParentOrigin(ParentOrigin::CENTER);
-
-            _stage.KeyEventSignal().Connect( this, &UbuntuServer::_OnKeyEvent );
-            //_uiLayer.TouchSignal().Connect(this, &UbuntuServer::_OnTouch);
-            _timer = Dali::Timer::New(1000 / TICK_RATE);
-            _timer.TickSignal().Connect(this, &UbuntuServer::_Update);
-            _timer.Start();
-
+            _InitCamera();
+            _InitSignals();
             _bg.Create(_stage);
         }
 
-        bool _Update()
+        bool __Update__()
         {
             static int _updateCount = 0;
             double deltaTime = 0.0;
@@ -109,39 +92,17 @@ class UbuntuServer : public Dali::ConnectionTracker
             // Real update routine starts from now on
             else
             {
-                // Get elapsed time measured in seconds
-                _currentTime = std::chrono::high_resolution_clock::now();
-                std::chrono::duration<double> elapsedFromPrevFrame = _currentTime - _oldTime; 
-                std::chrono::duration<double> elapsedFromStart = _currentTime - _initTime;
-                deltaTime = elapsedFromPrevFrame.count();
-                elapsedTime = elapsedFromStart.count();
-                _oldTime = _currentTime;
-
-                // Update SLAM
-                _sensor->GetImage(_rgb, _depth);
-                _slam.Update(_rgb, _depth, elapsedTime, _camera);
-                
-                // Plane detection
-                Eigen::Vector4f planeEq;
-                Eigen::Vector3f planePos;
-                int inlierCount;
-                if (_updatePlane)
-                {
-                    _slam.GetPlane(planeEq, planePos, inlierCount);
-                    if(inlierCount >= _planeInliers)
-                    {
-                        // todo: send planeEq, planePos
-                        _planeInliers = inlierCount;
-                    }
-                }
-                
+                _UpdateTime(deltaTime, elapsedTime);
+                _UpdateSlam(elapsedTime);
+                _UpdatePlane();
+                _SendData();
                 _bg.UpdateMat(_rgb);
             }
             
             return true;
         }
 
-        void _OnKeyEvent( const KeyEvent& event )
+        void __OnKeyEvent__( const KeyEvent& event )
         {
             // if( event.state == KeyEvent::Down )
             // {
@@ -160,10 +121,72 @@ class UbuntuServer : public Dali::ConnectionTracker
             // }
         }
 
-        // bool _OnTouch(Dali::Actor actor, const Dali::TouchData &touch)
+        // bool __OnTouch__(Dali::Actor actor, const Dali::TouchData &touch)
         // {
         //     return true;
         // }
+
+        void _InitCamera()
+        {
+            // Camera default transform
+            // Initial rotation is (0, 180, 0)
+            _camera = _stage.GetRenderTaskList().GetTask(0).GetCameraActor();
+            _stage.GetRenderTaskList().GetTask(0).SetCullMode( false );
+            _camera.SetNearClippingPlane(CAMERA_NEAR);
+            _camera.SetFarClippingPlane(CAMERA_FAR);
+            cout << "camera fov, asepct : " << _camera.GetFieldOfView() << ", " << _camera.GetAspectRatio() << endl;
+            _camera.SetAspectRatio(CAMERA_ASPECT);
+            _camera.SetFieldOfView(CAMERA_FOV);
+            _camera.SetAnchorPoint(AnchorPoint::CENTER);
+            _camera.SetParentOrigin(ParentOrigin::CENTER);
+        }
+
+        void _InitSignals()
+        {
+            _stage.KeyEventSignal().Connect( this, &UbuntuServer::__OnKeyEvent__ );
+            //_uiLayer.TouchSignal().Connect(this, &UbuntuServer::__OnTouch__);
+            _timer = Dali::Timer::New(1000 / TICK_RATE);
+            _timer.TickSignal().Connect(this, &UbuntuServer::__Update__);
+            _timer.Start();
+        }
+
+        void _UpdateTime(double &deltaTime, double &elapsedTime)
+        {
+            // Get times measured in seconds
+            _currentTime = std::chrono::high_resolution_clock::now();
+            std::chrono::duration<double> elapsedFromPrevFrame = _currentTime - _oldTime; 
+            std::chrono::duration<double> elapsedFromStart = _currentTime - _initTime;
+            deltaTime = elapsedFromPrevFrame.count();
+            elapsedTime = elapsedFromStart.count();
+            _oldTime = _currentTime;
+        }
+
+        void _UpdateSlam(double elapsedTime)
+        {
+            _sensor->GetImage(_rgb, _depth);
+            _slam.Update(_rgb, _depth, elapsedTime, _camera);
+        }
+
+        void _UpdatePlane()
+        {
+            Eigen::Vector4f planeEq;
+            Eigen::Vector3f planePos;
+            int inlierCount;
+            if (_updatePlane)
+            {
+                _slam.GetPlane(planeEq, planePos, inlierCount);
+                if(inlierCount >= _planeInliers)
+                {
+                    // todo: send planeEq, planePos
+                    _planeInliers = inlierCount;
+                }
+            }
+        }
+
+        void _SendData()
+        {
+            
+        }
 };
 
 // main function
