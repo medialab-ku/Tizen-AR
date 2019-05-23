@@ -1,25 +1,21 @@
 #include "Scene.h"
-#include <iostream>
 
-Scene::Scene(Dali::Stage &stage, Dali::CameraActor &camera, Dali::Layer &uiLayer,
-    btDiscreteDynamicsWorld *dynamicsWorld, FrameActor *plane)
-    : mListActor(),
-      mStage(stage),
-      mUILayer(uiLayer),
-      mDynamicsWorld(dynamicsWorld),
-      mPlane(plane)
+Scene::Scene(Dali::Stage &stage, Dali::CameraActor &camera, Dali::Layer &uiLayer, FrameActor *plane)
+    : _actorList(),
+      _stage(stage),
+      _uiLayer(uiLayer),
+      _plane(plane)
 {
     AddActor(plane);
-    mCamera = new CameraFrameActor(stage, camera);
-    AddActor(mCamera);
+    _camera = new CameraFrameActor(stage, camera);
+    AddActor(_camera);
 }
 
 void
 Scene::Update(double deltaTime)
 {
-    mDynamicsWorld->stepSimulation(deltaTime);
     OnUpdate(deltaTime);
-    for(auto itr = mListActor.begin(); itr != mListActor.end(); ++itr)
+    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
         (*itr)->OnUpdate(deltaTime);
     }
@@ -28,26 +24,26 @@ Scene::Update(double deltaTime)
 void
 Scene::Dispose()
 {
-    mListActor.clear();
+    _actorList.clear();
 }
 
 void 
 Scene::AddActor(FrameActor *actor)
 {
-    bool found = (std::find(mListActor.begin(), mListActor.end(), actor) != mListActor.end());
+    bool found = (std::find(_actorList.begin(), _actorList.end(), actor) != _actorList.end());
     if (!found)
     {
-        mListActor.push_back(actor);
+        _actorList.push_back(actor);
     }
 }
 
 void 
 Scene::RemoveActor(FrameActor *actor)
 {
-    bool found = (std::find(mListActor.begin(), mListActor.end(), actor) != mListActor.end());
+    bool found = (std::find(_actorList.begin(), _actorList.end(), actor) != _actorList.end());
     if (found)
     {
-        mListActor.remove(actor);
+        _actorList.remove(actor);
         delete actor;
     }
 }
@@ -55,26 +51,26 @@ Scene::RemoveActor(FrameActor *actor)
 void
 Scene::AddUI(Dali::Actor &ui)
 {
-    mUILayer.Add(ui);
+    _uiLayer.Add(ui);
 }
 
 void
 Scene::OnStart()
 {
     // Put all actors on the plane
-    for(auto itr = mListActor.begin(); itr != mListActor.end(); ++itr)
+    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
         std::cout << (*itr)->GetPosition().ToDali() << std::endl;
-        if ((*itr) == mPlane) continue;
+        if ((*itr) == _plane) continue;
 
         auto pos = (*itr)->GetPosition();
         auto rot = (*itr)->GetRotation();
-        (*itr)->SetPosition(pos + mPlane->GetPosition());
-        (*itr)->RotateBy(mPlane->GetRotation());
+        (*itr)->SetPosition(pos + _plane->GetPosition());
+        (*itr)->RotateBy(_plane->GetRotation());
         std::cout << (*itr)->GetName() << ": " << pos.ToDali() << std::endl;
     }
 
-    for(auto itr = mListActor.begin(); itr != mListActor.end(); ++itr)
+    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
         (*itr)->OnStart();
     }
@@ -83,8 +79,7 @@ Scene::OnStart()
 void
 Scene::OnUpdate(double deltaTime)
 {
-    mDynamicsWorld->stepSimulation(deltaTime, 10);
-    for(auto itr = mListActor.begin(); itr != mListActor.end(); ++itr)
+    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
         (*itr)->OnUpdate(deltaTime);
     }

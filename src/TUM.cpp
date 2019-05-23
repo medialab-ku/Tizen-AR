@@ -1,6 +1,4 @@
 #include "TUM.h"
-#include<fstream>
-using namespace std;
 
 TUM::TUM()
     : seq(0), maxSeq(0)
@@ -10,18 +8,18 @@ TUM::TUM()
 
 void TUM::LoadImages(const std::string &strAssociationFilename, const std::string &strSeqFilename)
 {
-    ifstream fAssociation;
+    std::ifstream fAssociation;
     fAssociation.open(strAssociationFilename.c_str());
     while(!fAssociation.eof())
     {
-        string s;
+        std::string s;
         getline(fAssociation,s);
         if(!s.empty())
         {
-            stringstream ss;
+            std::stringstream ss;
             ss << s;
             double t;
-            string sRGB, sD;
+            std::string sRGB, sD;
             ss >> t;
             timestamps.push_back(t);
             ss >> sRGB;

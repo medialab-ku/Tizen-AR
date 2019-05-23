@@ -3,16 +3,15 @@
 
 #include <dali-toolkit/dali-toolkit.h>
 #include <dali/devel-api/common/stage-devel.h>
-#include <bullet/btBulletDynamicsCommon.h>
 #include <list>
+#include <iostream>
 #include "FrameActor.h"
 #include "CameraFrameActor.h"
 
 class Scene
 {
     public:
-        Scene(Dali::Stage &stage, Dali::CameraActor &camera, Dali::Layer &uiLayer, 
-            btDiscreteDynamicsWorld *dynamicsWorld, FrameActor *plane);
+        Scene(Dali::Stage &stage, Dali::CameraActor &camera, Dali::Layer &uiLayer, FrameActor *plane);
         void Update(double deltaTime);
 
     public:
@@ -31,12 +30,11 @@ class Scene
     protected:
         // Essentials
         // FrameActor is pointer since it can be created and removed at any time
-        std::list<FrameActor*> mListActor;
-        btDiscreteDynamicsWorld *mDynamicsWorld;
-        Dali::Stage mStage;
-        Dali::Layer mUILayer;
-        FrameActor *mPlane;
-        CameraFrameActor *mCamera;
+        std::list<FrameActor*> _actorList;
+        Dali::Stage _stage;
+        Dali::Layer _uiLayer;
+        FrameActor *_plane;
+        CameraFrameActor *_camera;
 };
 
 #endif

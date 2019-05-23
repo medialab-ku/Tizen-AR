@@ -2,7 +2,7 @@
 
 std::map<std::string, Dali::PixelData> Assets::_imgs;
 std::map<std::string, ObjLoader> Assets::_objs;
-std::map<std::string, std::stringstream> Assets::_shaderCodes;
+std::map<std::string, std::string> Assets::_shaderCodes;
 
 void
 Assets::Init()
@@ -110,7 +110,7 @@ Assets::LoadAllShaders()
 		    stream << file.rdbuf();
 		    file.close();
             
-            _shaderCodes.insert(std::make_pair(std::string(entry->d_name), stream));
+            _shaderCodes.insert(std::make_pair(std::string(entry->d_name), stream.str()));
         }
         catch(const std::exception& e)
         {
@@ -163,7 +163,7 @@ Assets::GetShader(const std::string vertName, const std::string fragName, Dali::
     {
         auto vertCode = _shaderCodes.find(vertName)->second;
         auto fragCode = _shaderCodes.find(fragName)->second;
-        buff = Dali::Shader::New(vertCode.str().c_str(), fragCode.str().c_str());
+        buff = Dali::Shader::New(vertCode.c_str(), fragCode.c_str());
         return true;
     }
     

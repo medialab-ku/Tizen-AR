@@ -1,121 +1,121 @@
 #include "Type.h"
 
-wVector3::wVector3()
+Vec3::Vec3()
     : x(0.0f), y(0.0f), z(0.0f)
 {
 }
 
-wVector3::wVector3(const float x, const float y, const float z)
+Vec3::Vec3(const float x, const float y, const float z)
     : x(x), y(y), z(z)
 {
 }
 
-wVector3::wVector3(const Eigen::Vector3f cv)
+Vec3::Vec3(const Eigen::Vector3f cv)
     : x(cv(0)), y(-cv(1)), z(-cv(2))
 {    
 }
 
-wVector3::wVector3(const Dali::Vector3 dali)
+Vec3::Vec3(const Dali::Vector3 dali)
     : x(-dali.x), y(-dali.y), z(-dali.z)
 {
 }
 
-wVector3::wVector3(const btVector3 bullet)
+Vec3::Vec3(const btVector3 bullet)
     : x(bullet.getX()), y(bullet.getY()), z(bullet.getZ())
 {
 }
 
 Dali::Vector3
-wVector3::ToCV() const
+Vec3::ToCV() const
 {
     return Dali::Vector3(x, -y, -z);
 }
 
 Dali::Vector3
-wVector3::ToDali() const
+Vec3::ToDali() const
 {
     return Dali::Vector3(-x, -y, -z);
 }
 
 btVector3
-wVector3::ToBullet() const
+Vec3::ToBullet() const
 {
     return btVector3(x, y, z);
 }
 
-wVector3
-wVector3::operator+ (const wVector3& v) const
+Vec3
+Vec3::operator+ (const Vec3& v) const
 {
-    return wVector3(x + v.x , y + v.y, z + v.z);
+    return Vec3(x + v.x , y + v.y, z + v.z);
 }
 
-wVector3
-wVector3::operator- (const wVector3& v) const
+Vec3
+Vec3::operator- (const Vec3& v) const
 {
-    return wVector3(x - v.x , y - v.y, z - v.z);
+    return Vec3(x - v.x , y - v.y, z - v.z);
 }
 
-wVector3
-wVector3::operator* (const float k) const
+Vec3
+Vec3::operator* (const float k) const
 {
-    return wVector3(x*k, y*k, z*k);
+    return Vec3(x*k, y*k, z*k);
 }
 
 float
-wVector3::Length() const
+Vec3::Length() const
 {
     return std::sqrt(x*x + y*y + z*z);
 }
 
-wVector3
-wVector3::Normalize()
+Vec3
+Vec3::Normalize()
 {
     float l = std::sqrt(x*x + y*y + z*z);
-    return wVector3(x/l, y/l,  z/l);
+    return Vec3(x/l, y/l,  z/l);
 }
 
 
-wQuaternion::wQuaternion()
+Quat::Quat()
     : x(0.0f), y(0.0f), z(0.0f), w(0.0f)
 {
 }
 
-wQuaternion::wQuaternion(const float x, const float y, const float z, const float w)
+Quat::Quat(const float x, const float y, const float z, const float w)
     : x(x), y(y), z(z), w(w)
 {
 }
 
-wQuaternion::wQuaternion(const Eigen::Vector4f cv)
+Quat::Quat(const Eigen::Vector4f cv)
     : x(cv(0)), y(-cv(1)), z(-cv(2)), w(cv(3))
 {
 }
 
-wQuaternion::wQuaternion(const Dali::Quaternion dali)
+Quat::Quat(const Dali::Quaternion dali)
     // may have bug
     : x(-dali.AsVector().x), y(-dali.AsVector().y), z(-dali.AsVector().z), w(-dali.AsVector().w)
 {
 }
 
-wQuaternion::wQuaternion(const btQuaternion bullet)
+Quat::Quat(const btQuaternion bullet)
     : x(bullet.getX()), y(bullet.getY()), z(bullet.getZ()), w(bullet.getW())
 {
 }
 
 Dali::Quaternion
-wQuaternion::ToDali() const
+Quat::ToDali() const
 {
     // may have bug
     return Dali::Quaternion(-w, -x, -y, -z);
 }
 
 btQuaternion
-wQuaternion::ToBullet() const
+Quat::ToBullet() const
 {
     return btQuaternion(x, y, z, w);
 }
 
-wQuaternion
-wQuaternion::Inverse()
+Quat
+Quat::Inverse()
 {
-    return wQuaternion(-x, -y, -z, -w);
+    return Quat(-x, -y, -z, -w);
 }

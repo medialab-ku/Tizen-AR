@@ -28,8 +28,6 @@ class Background
         Dali::PixelData _CVMat2Pixel(cv::Mat& img);
 
     public:
-        ~Background();
-
         void Create(Dali::Stage &stage);
 
         /**

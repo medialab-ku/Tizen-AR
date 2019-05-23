@@ -11,7 +11,7 @@ Realsense::Realsense()
     get_field_of_view(prof.get_stream(RS2_STREAM_COLOR));
 }
 
-Realsense::~RealSense()
+Realsense::~Realsense()
 {
     pipe.stop();
 }

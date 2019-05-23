@@ -25,7 +25,7 @@ class Assets
     private:
         static std::map<std::string, ObjLoader> _objs;
         static std::map<std::string, Dali::PixelData> _imgs;
-        static std::map<std::string, std::stringstream> _shaderCodes;
+        static std::map<std::string, std::string> _shaderCodes;
 };
 
 #endif

@@ -2,6 +2,7 @@
 #define __TUM_H__
 
 #include <opencv2/opencv.hpp>
+#include <fstream>
 
 class TUM
 {

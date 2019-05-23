@@ -2,23 +2,23 @@
 #include <iostream>
 
 FrameActor::FrameActor(Dali::Stage &stage)
-    : mStage(stage),
-      mChilds(),
-      mParent(nullptr)
+    : _stage(stage),
+      _childs(),
+      _parent(nullptr)
 {
-    mActor = Dali::Actor::New();
-    mActor.SetAnchorPoint(Dali::AnchorPoint::CENTER);
-    mActor.SetParentOrigin(Dali::ParentOrigin::CENTER);
+    _actor = Dali::Actor::New();
+    _actor.SetAnchorPoint(Dali::AnchorPoint::CENTER);
+    _actor.SetParentOrigin(Dali::ParentOrigin::CENTER);
     // Initial size of Dali Actor is... (0, 0, 0)... really!
-    mActor.SetSize(Dali::Vector3(1, 1, 1));
-    mStage.Add(mActor);
+    _actor.SetSize(Dali::Vector3(1, 1, 1));
+    _stage.Add(_actor);
     FrameActor::SetPosition(0, 0, 0);
     FrameActor::SetRotation(0, 0, 0, 1);
 }
 
 FrameActor::FrameActor(Dali::Stage &stage, Dali::Actor &actor)
-    : mStage(stage),
-      mActor(actor)
+    : _stage(stage),
+      _actor(actor)
 {
     
 }
@@ -26,89 +26,89 @@ FrameActor::FrameActor(Dali::Stage &stage, Dali::Actor &actor)
 FrameActor::~FrameActor()
 {
     // Dali::Actor's destructor will be called
-    mStage.Remove(mActor);
+    _stage.Remove(_actor);
 }
 
 void
 FrameActor::SetPosition(float x, float y, float z)
 {
-    mPosition = wVector3(x, y, z);
-    mActor.SetPosition(mPosition.ToDali());
+    _position = Vec3(x, y, z);
+    _actor.SetPosition(_position.ToDali());
 }
 
 void
-FrameActor::SetPosition(wVector3 position)
+FrameActor::SetPosition(Vec3 position)
 {
-    mPosition = position;
-    mActor.SetPosition(mPosition.ToDali());
+    _position = position;
+    _actor.SetPosition(_position.ToDali());
 }
 
 void
 FrameActor::SetRotation(float x, float y, float z, float w)
 {
-    mRotation = wQuaternion(x, y, z, w);
-    mActor.SetOrientation(mRotation.ToDali());
+    _rotation = Quat(x, y, z, w);
+    _actor.SetOrientation(_rotation.ToDali());
 }
 
 void
-FrameActor::SetRotation(wQuaternion rotation)
+FrameActor::SetRotation(Quat rotation)
 {
-    mRotation = rotation;
-    mActor.SetOrientation(mRotation.ToDali());
+    _rotation = rotation;
+    _actor.SetOrientation(_rotation.ToDali());
 }
 
 void
 FrameActor::SetSize(float x, float y, float z)
 {
-    mSize = wVector3(x, y, z);
-    mActor.SetSize(mSize.ToDali());
+    _size = Vec3(x, y, z);
+    _actor.SetSize(_size.ToDali());
 }
 
 void
-FrameActor::SetSize(wVector3 size)
+FrameActor::SetSize(Vec3 size)
 {
-    mSize = size;
-    mActor.SetSize(mSize.ToDali());
+    _size = size;
+    _actor.SetSize(_size.ToDali());
 }
 
 void
-FrameActor::RotateBy(wQuaternion rot)
+FrameActor::RotateBy(Quat rot)
 {
-    Dali::Quaternion newRot = mRotation.ToDali();
+    Dali::Quaternion newRot = _rotation.ToDali();
     newRot *= rot.ToDali();
-    SetRotation(wQuaternion(newRot));
+    SetRotation(Quat(newRot));
 }
 
 void
 FrameActor::AddChild(FrameActor *child)
 {
-    bool found = (std::find(mChilds.begin(), mChilds.end(), child) != mChilds.end());
+    bool found = (std::find(_childs.begin(), _childs.end(), child) != _childs.end());
     if (!found)
     {
-        mChilds.push_back(child);
-        mActor.Add(child->GetActor());
-        child->mParent = this;
+        _childs.push_back(child);
+        _actor.Add(child->GetActor());
+        child->_parent = this;
     }
 }
 
 void
 FrameActor::RemoveChild(FrameActor *child)
 {
-    bool found = (std::find(mChilds.begin(), mChilds.end(), child) != mChilds.end());
+    bool found = (std::find(_childs.begin(), _childs.end(), child) != _childs.end());
     if (found)
     {
-        mChilds.remove(child);
-        mActor.Remove(child->GetActor());
-        child->mParent = nullptr;
+        _childs.remove(child);
+        _actor.Remove(child->GetActor());
+        child->_parent = nullptr;
     }
 }
 
 void
 FrameActor::Unparent()
 {
-    if (mParent)
+    if (_parent)
     {
-        mParent->RemoveChild(this);
+        _parent->RemoveChild(this);
     }
 }
 

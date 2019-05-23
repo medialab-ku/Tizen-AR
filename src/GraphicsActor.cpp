@@ -1,6 +1,4 @@
 #include "GraphicsActor.h"
-#include "Assets.h"
-#include <iostream>
 
 GraphicsActor::GraphicsActor(Dali::Stage &stage, Model &model)
     : FrameActor(stage)
@@ -9,24 +7,24 @@ GraphicsActor::GraphicsActor(Dali::Stage &stage, Model &model)
 	for (auto tex : textures)
 		_SetTextureSet(tex);
     _SetRenderer(model.GetShader(), model.GetGeometry());
-    mActor.AddRenderer(mRenderer);
+    _actor.AddRenderer(_renderer);
 }
 
 void
 GraphicsActor::_SetTextureSet(TextureInfo tex)
 {
-	mTextureSet = Dali::TextureSet::New();
+	_textureSet = Dali::TextureSet::New();
 
 	// Dali::PixelData pixels = Dali::Toolkit::SyncImageLoader::Load( "../res/images/" + textureName );
 	// Dali::Texture texture = Dali::Texture::New( Dali::TextureType::TEXTURE_2D, pixels.GetPixelFormat(), pixels.GetWidth(), pixels.GetHeight() );
 	// texture.Upload( pixels, 0, 0, 0, 0, pixels.GetWidth(), pixels.GetHeight() );
-	// mTextureSet.SetTexture(0, texture);
+	// _textureSet.SetTexture(0, texture);
 
 	Dali::Texture texture;
 	if (Assets::GetTexture(tex.name, texture))
 	{
 		// It seems that we can bind multiple textures
-		mTextureSet.SetTexture( tex.index, texture );
+		_textureSet.SetTexture( tex.index, texture );
 	}
 	else
 	{
@@ -36,10 +34,10 @@ GraphicsActor::_SetTextureSet(TextureInfo tex)
 
 void GraphicsActor::_SetRenderer(Dali::Shader &shader, Dali::Geometry &geometry)
 {
-    mRenderer = Dali::Renderer::New( geometry, shader );
-	mRenderer.SetTextures( mTextureSet );
-	mRenderer.SetProperty( Dali::Renderer::Property::DEPTH_INDEX, 0.0f );
-	mRenderer.SetProperty( Dali::Renderer::Property::FACE_CULLING_MODE, Dali::FaceCullingMode::BACK );
-	mRenderer.SetProperty( Dali::Renderer::Property::DEPTH_WRITE_MODE, Dali::DepthWriteMode::ON );
-    mRenderer.SetProperty( Dali::Renderer::Property::BLEND_MODE, Dali::BlendMode::ON );
+    _renderer = Dali::Renderer::New( geometry, shader );
+	_renderer.SetTextures( _textureSet );
+	_renderer.SetProperty( Dali::Renderer::Property::DEPTH_INDEX, 0.0f );
+	_renderer.SetProperty( Dali::Renderer::Property::FACE_CULLING_MODE, Dali::FaceCullingMode::BACK );
+	_renderer.SetProperty( Dali::Renderer::Property::DEPTH_WRITE_MODE, Dali::DepthWriteMode::ON );
+    _renderer.SetProperty( Dali::Renderer::Property::BLEND_MODE, Dali::BlendMode::ON );
 }
