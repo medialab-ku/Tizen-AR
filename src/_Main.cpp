@@ -15,6 +15,9 @@ const float             CAMERA_FAR          = 2000.0f;
 const float             CAMERA_ASPECT       = (SCREEN_WIDTH * Focal_Y) / (SCREEN_HEIGHT * Focal_X);
 const float             CAMERA_FOV          = atanf(SCREEN_HEIGHT / (2.0f * Focal_Y)) * 2;
 
+int ARGC;
+char **ARGV;
+
 class UbuntuServer : public Dali::ConnectionTracker
 {
     private:
@@ -115,7 +118,9 @@ class UbuntuServer : public Dali::ConnectionTracker
                 // q pressed
                 if(event.keyCode == 24)
                 {
-                    Net::BeginServer("192.168.0.33", 9999);
+                    std::string ip = "127.0.0.1";
+                    if (ARGC > 1) ip = std::string(ARGV[1]);
+                    Net::BeginServer(ip, 9999);
                 }
             }
         }
@@ -190,13 +195,15 @@ class UbuntuServer : public Dali::ConnectionTracker
             char *bytes = new char[size];  // you will have to delete[] that later
             std::memcpy(bytes, _rgb.data, size);
             Net::Send(Net::ID_IMG, bytes, size);
-            std::cout << "Send " << size << "bytes" << std::endl;
+            std::cout << "Send " << size << " bytes" << std::endl;
         }
 };
 
 // main function
 int DALI_EXPORT_API main(int argc, char **argv)
 {
+    ARGC = argc;
+    ARGV = argv;
     Assets::Init();
     Dali::Application application = Dali::Application::New(&argc, &argv);
     UbuntuServer server(application);
