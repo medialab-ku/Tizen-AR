@@ -8,7 +8,7 @@ SensorDevice* SensorDevice::Get(SensorDevice::Type prefered)
     static bool init = false;
     if (not init)
     {
-        _tum = new Tum();
+        _tum = new TUM();
         _rs = new Realsense();
         init = true;
     }

@@ -1,6 +1,6 @@
 #include "SensorDevice.h"
 
-void Tum::_LoadImages(const std::string &strAssociationFilename, const std::string &strSeqFilename)
+void TUM::_LoadImages(const std::string &strAssociationFilename, const std::string &strSeqFilename)
 {
     std::ifstream fAssociation;
     fAssociation.open(strAssociationFilename.c_str());
@@ -31,20 +31,20 @@ void Tum::_LoadImages(const std::string &strAssociationFilename, const std::stri
     maxSeq = imRGB.size() - 1;
 }
 
-void Tum::Init()
+void TUM::Init()
 {
     seq = 0;
     maxSeq = 0;
     _LoadImages("../res/SLAM/fr1_xyz.txt", "rgbd_dataset_freiburg1_xyz");
 }
 
-bool Tum::IsExists()
+bool TUM::IsExists()
 {
     DIR *dir = opendir("../res/SLAM");
     return dir != nullptr;
 }
 
-void Tum::GetImage(cv::Mat& left, cv::Mat& right)
+void TUM::GetImage(cv::Mat& left, cv::Mat& right)
 {
     if(seq > maxSeq) seq = 0;
 

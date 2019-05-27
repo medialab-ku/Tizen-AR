@@ -56,7 +56,7 @@ class SensorDevice
         virtual void GetImage(cv::Mat &left, cv::Mat &right) = 0;
 };
 
-class Tum : public SensorDevice
+class TUM : public SensorDevice
 {
     public:
         void GetImage(cv::Mat& left, cv::Mat& right) override;

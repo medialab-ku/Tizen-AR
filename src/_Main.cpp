@@ -2,7 +2,7 @@
 #include "Net.h"
 #include "ORB_SLAM2/System.h"
 #include "Background.h"
-#include "Slam.h"
+#include "SLAM.h"
 #include "SensorDevice.h"
 
 const unsigned int      TICK_RATE           = 30;           // per second
@@ -23,7 +23,7 @@ class UbuntuServer : public Dali::ConnectionTracker
     private:
         // Core
         Dali::Application _application;
-        Slam _slam;
+        SLAM _slam;
         cv::Mat _rgb, _depth;
         SensorDevice *_sensor;
 
@@ -191,12 +191,32 @@ class UbuntuServer : public Dali::ConnectionTracker
         {
             if (not Net::IsConnected()) return;
             
-            int size = _rgb.total() * _rgb.elemSize();
-            char *buf = new char[size];  // you will have to delete[] that later
-            std::memcpy(buf, _rgb.data, size);
-            Net::Send(Net::ID_IMG, buf, size);
+            size_t size;
+            char *buf;
+            int head = 0;
+
+            size_t imsize = _rgb.total() * _rgb.elemSize();
+            size_t posesize = 7 * sizeof(float);
+            size = imsize + posesize;
+            buf = new char[size];
+
+            // encode image
+            std::memcpy(buf, _rgb.data, imsize);
+
+            // encode camera pose
+            Vec3 pos(_camera.GetCurrentPosition());
+            Quat rot(_camera.GetCurrentOrientation());
+            std::memcpy(buf + imsize + head, (char*)(&(pos.x)), sizeof(float)); head += sizeof(float);
+            std::memcpy(buf + imsize + head, (char*)(&(pos.y)), sizeof(float)); head += sizeof(float);
+            std::memcpy(buf + imsize + head, (char*)(&(pos.z)), sizeof(float)); head += sizeof(float);
+            std::memcpy(buf + imsize + head, (char*)(&(rot.x)), sizeof(float)); head += sizeof(float);
+            std::memcpy(buf + imsize + head, (char*)(&(rot.y)), sizeof(float)); head += sizeof(float);
+            std::memcpy(buf + imsize + head, (char*)(&(rot.z)), sizeof(float)); head += sizeof(float);
+            std::memcpy(buf + imsize + head, (char*)(&(rot.w)), sizeof(float));
+
+            size_t sent = Net::Send(Net::ID_IMG, buf, size);
             delete[] buf;
-            std::cout << "Send " << size << " bytes" << std::endl;
+            std::cout << "Send " << sent << " bytes" << std::endl;
         }
 };
 

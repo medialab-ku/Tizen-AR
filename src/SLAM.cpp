@@ -1,13 +1,13 @@
-#include "Slam.h"
+#include "SLAM.h"
 
-Slam::Slam()
+SLAM::SLAM()
 {
     const std::string orb = "../res/SLAM/ORB.bin";
     const std::string settings = "../res/SLAM/RealSense.yaml";
     _orb = new ORB_SLAM2::System(orb, settings, ORB_SLAM2::System::RGBD);
 }
 
-Slam::~Slam()
+SLAM::~SLAM()
 {
     _orb->SaveTrajectoryTUM("CameraTrajectory.txt");
     _orb->SaveMapPoints("MapPoints.txt");
@@ -16,7 +16,7 @@ Slam::~Slam()
     delete _orb;
 }
 
-void Slam::Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Dali::CameraActor &camera)
+void SLAM::Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Dali::CameraActor &camera)
 {
     try
     {
@@ -36,7 +36,7 @@ void Slam::Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Dali::CameraAc
     }
 }
 
-void Slam::GetPlane(Eigen::Vector4f &eq, Eigen::Vector3f &pos, int &inlierCount)
+void SLAM::GetPlane(Eigen::Vector4f &eq, Eigen::Vector3f &pos, int &inlierCount)
 {
     _orb->GetPlaneDetector()->GetPlane(eq, pos, inlierCount);
 }

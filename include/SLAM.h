@@ -8,14 +8,14 @@
 #include "ORB_SLAM2/Converter.h"
 #include "Type.h"
 
-class Slam
+class SLAM
 {
     private:
         ORB_SLAM2::System *_orb;
 
     public:
-        Slam();
-        ~Slam();
+        SLAM();
+        ~SLAM();
         void Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Dali::CameraActor &camera);
         void GetPlane(Eigen::Vector4f &eq, Eigen::Vector3f &pos, int &inlierCount);
 };
