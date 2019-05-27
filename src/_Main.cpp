@@ -192,9 +192,10 @@ class UbuntuServer : public Dali::ConnectionTracker
             if (not Net::IsConnected()) return;
             
             int size = _rgb.total() * _rgb.elemSize();
-            char *bytes = new char[size];  // you will have to delete[] that later
-            std::memcpy(bytes, _rgb.data, size);
-            Net::Send(Net::ID_IMG, bytes, size);
+            char *buf = new char[size];  // you will have to delete[] that later
+            std::memcpy(buf, _rgb.data, size);
+            Net::Send(Net::ID_IMG, buf, size);
+            delete[] buf;
             std::cout << "Send " << size << " bytes" << std::endl;
         }
 };
