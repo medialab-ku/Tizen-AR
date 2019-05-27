@@ -100,6 +100,7 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _UpdatePlane();
                 _SendData();
                 _bg.UpdateMat(_rgb);
+                _Wait();
             }
             
             return true;
@@ -217,6 +218,12 @@ class UbuntuServer : public Dali::ConnectionTracker
             size_t sent = Net::Send(Net::ID_IMG, buf, size);
             delete[] buf;
             std::cout << "Send " << sent << " bytes" << std::endl;
+        }
+
+        void _Wait()
+        {
+            if (not Net::IsConnected()) return;
+            while (not Net::Receive());
         }
 };
 
