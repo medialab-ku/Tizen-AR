@@ -50,29 +50,18 @@ void NetThread::__Procedure__()
         {
             case Net::ID_CAM:
             {
-                size_t size;
-                char *buf;
-                int head = 0;
-
                 size_t imsize = _left.total() * _left.elemSize();
                 size_t posesize = 7 * sizeof(float);
-                size = imsize + posesize;
-                buf = new char[size];
-
-                // encode image
-                std::memcpy(buf, _left.data, imsize);
-
-                // encode camera pose
-                std::memcpy(buf + imsize + head, (char*)(&(_camPos.x)), sizeof(float)); head += sizeof(float);
-                std::memcpy(buf + imsize + head, (char*)(&(_camPos.y)), sizeof(float)); head += sizeof(float);
-                std::memcpy(buf + imsize + head, (char*)(&(_camPos.z)), sizeof(float)); head += sizeof(float);
-                std::memcpy(buf + imsize + head, (char*)(&(_camRot.x)), sizeof(float)); head += sizeof(float);
-                std::memcpy(buf + imsize + head, (char*)(&(_camRot.y)), sizeof(float)); head += sizeof(float);
-                std::memcpy(buf + imsize + head, (char*)(&(_camRot.z)), sizeof(float)); head += sizeof(float);
-                std::memcpy(buf + imsize + head, (char*)(&(_camRot.w)), sizeof(float));
-
-                size_t sent = Net::Send(Net::ID_CAM, buf, size);
+                size_t size = imsize + posesize;
+                char *buf = new char[size];
+                
+                Net::Mat param_left(_left.data, imsize);
+                Net::Vec3 param_pos(_camPos.x, _camPos.y, _camPos.z);
+                Net::Vec4 param_rot(_camRot.x, _camRot.y, _camRot.z, _camRot.w);
+                size_t encoded = Net::EncodeCameraData(buf, param_left, param_pos, param_rot);
+                size_t sent = Net::Send(Net::ID_CAM, buf, encoded);
                 delete[] buf;
+
                 std::cout << "Send Camera Data: " << sent << " bytes" << std::endl;
             }
             break;
