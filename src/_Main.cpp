@@ -1,9 +1,14 @@
 #include <chrono>
+#include <dali/dali.h>
+#include <dali-toolkit/dali-toolkit.h>
+#include <iostream>
+#include <opencv2/opencv.hpp>
 #include "Net.h"
 #include "ORB_SLAM2/System.h"
 #include "Background.h"
 #include "SLAM.h"
 #include "SensorDevice.h"
+#include "NetThread.h"
 
 const unsigned int      TICK_RATE           = 30;           // per second
 const float             Focal_X             = 609.275f;     // realsense
@@ -26,6 +31,7 @@ class UbuntuServer : public Dali::ConnectionTracker
         SLAM _slam;
         cv::Mat _rgb, _depth;
         SensorDevice *_sensor;
+        NetThread _netThread;
 
         // Dali
         Dali::Stage _stage;
@@ -98,9 +104,7 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _UpdateTime(deltaTime, elapsedTime);
                 _UpdateSlam(elapsedTime);
                 _UpdatePlane();
-                _SendData();
                 _bg.UpdateMat(_rgb);
-                _Wait();
             }
             
             return true;
@@ -170,6 +174,9 @@ class UbuntuServer : public Dali::ConnectionTracker
         {
             _sensor->GetImage(_rgb, _depth);
             _slam.Update(_rgb, _depth, elapsedTime, _camera);
+            _netThread.UpdateCameraData(_camera.GetCurrentPosition(),
+                                        _camera.GetCurrentOrientation(),
+                                        _rgb, _depth);
         }
 
         void _UpdatePlane()
@@ -182,48 +189,10 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _slam.GetPlane(planeEq, planePos, inlierCount);
                 if(inlierCount >= _planeInliers)
                 {
-                    // todo: send planeEq, planePos
                     _planeInliers = inlierCount;
+                    _netThread.UpdatePlaneData(planeEq, planePos);
                 }
             }
-        }
-
-        void _SendData()
-        {
-            if (not Net::IsConnected()) return;
-            
-            size_t size;
-            char *buf;
-            int head = 0;
-
-            size_t imsize = _rgb.total() * _rgb.elemSize();
-            size_t posesize = 7 * sizeof(float);
-            size = imsize + posesize;
-            buf = new char[size];
-
-            // encode image
-            std::memcpy(buf, _rgb.data, imsize);
-
-            // encode camera pose
-            Vec3 pos(_camera.GetCurrentPosition());
-            Quat rot(_camera.GetCurrentOrientation());
-            std::memcpy(buf + imsize + head, (char*)(&(pos.x)), sizeof(float)); head += sizeof(float);
-            std::memcpy(buf + imsize + head, (char*)(&(pos.y)), sizeof(float)); head += sizeof(float);
-            std::memcpy(buf + imsize + head, (char*)(&(pos.z)), sizeof(float)); head += sizeof(float);
-            std::memcpy(buf + imsize + head, (char*)(&(rot.x)), sizeof(float)); head += sizeof(float);
-            std::memcpy(buf + imsize + head, (char*)(&(rot.y)), sizeof(float)); head += sizeof(float);
-            std::memcpy(buf + imsize + head, (char*)(&(rot.z)), sizeof(float)); head += sizeof(float);
-            std::memcpy(buf + imsize + head, (char*)(&(rot.w)), sizeof(float));
-
-            size_t sent = Net::Send(Net::ID_IMG, buf, size);
-            delete[] buf;
-            std::cout << "Send " << sent << " bytes" << std::endl;
-        }
-
-        void _Wait()
-        {
-            if (not Net::IsConnected()) return;
-            while (not Net::Receive());
         }
 };
 
