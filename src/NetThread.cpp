@@ -41,8 +41,9 @@ void NetThread::__Procedure__()
         
         // wait until the client requests data 
         if (not Net::IsConnected()) continue;
+        std::cout << "1" << std::endl;
         if (not Net::Receive()) continue;
-        
+        std::cout << "2" << std::endl;
 
         char id = Net::GetId();
         std::cout << id << std::endl;
@@ -68,7 +69,16 @@ void NetThread::__Procedure__()
 
             case Net::ID_PLANE:
             {
+                size_t size = 7 * sizeof(float);
+                char *buf = new char[size];
 
+                Net::Vec4 param_eq(_planeEq(0), _planeEq(1), _planeEq(2), _planeEq(3));
+                Net::Vec3 param_pos(_planePos(0), _planePos(1), _planePos(2));
+                size_t encoded = Net::EncodePlaneData(buf, param_eq, param_pos);
+                size_t sent = Net::Send(Net::ID_PLANE, buf, encoded);
+                delete[] buf;
+
+                std::cout << "Send Plane Data: " << sent << " bytes" << std::endl;
             }
             break;
         }
