@@ -41,12 +41,10 @@ void NetThread::__Procedure__()
         
         // wait until the client requests data 
         if (not Net::IsConnected()) continue;
-        std::cout << "1" << std::endl;
         if (not Net::Receive()) continue;
-        std::cout << "2" << std::endl;
 
         char id = Net::GetId();
-        std::cout << id << std::endl;
+        std::cout << "Packet Id: " << (int)id << std::endl;
         switch (id)
         {
             case Net::ID_CAM:
