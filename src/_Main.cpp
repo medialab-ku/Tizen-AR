@@ -22,15 +22,15 @@ const float             CAMERA_FOV          = atanf(SCREEN_HEIGHT / (2.0f * Foca
 
 int ARGC;
 char **ARGV;
+SLAM *slam;
+SensorDevice *sensor;
 
 class UbuntuServer : public Dali::ConnectionTracker
 {
     private:
         // Core
         Dali::Application _application;
-        SLAM _slam;
         cv::Mat _rgb, _depth;
-        SensorDevice *_sensor;
         NetThread _netThread;
 
         // Dali
@@ -57,13 +57,6 @@ class UbuntuServer : public Dali::ConnectionTracker
             : _application(application),
               error(0)
         {
-            _sensor = SensorDevice::Get(SensorDevice::Type::Realsense);
-            if (_sensor == nullptr)
-            {
-                error = -1;
-                return;
-            }
-
             _application.InitSignal().Connect(this, &UbuntuServer::__Create__);
         }
 
@@ -172,8 +165,8 @@ class UbuntuServer : public Dali::ConnectionTracker
 
         void _UpdateSlam(double elapsedTime)
         {
-            _sensor->GetImage(_rgb, _depth);
-            _slam.Update(_rgb, _depth, elapsedTime, _camera);
+            sensor->GetImage(_rgb, _depth);
+            slam->Update(_rgb, _depth, elapsedTime, _camera);
             _netThread.UpdateCameraData(_camera.GetCurrentPosition(),
                                         _camera.GetCurrentOrientation(),
                                         _rgb, _depth);
@@ -186,7 +179,7 @@ class UbuntuServer : public Dali::ConnectionTracker
             int inlierCount;
             if (_updatePlane)
             {
-                _slam.GetPlane(planeEq, planePos, inlierCount);
+                slam->GetPlane(planeEq, planePos, inlierCount);
                 if(inlierCount >= _planeInliers)
                 {
                     _planeInliers = inlierCount;
@@ -202,9 +195,17 @@ int DALI_EXPORT_API main(int argc, char **argv)
     ARGC = argc;
     ARGV = argv;
     Assets::Init();
+    sensor = SensorDevice::Get(SensorDevice::Type::Realsense);
+    if (sensor == nullptr) return -1;
+    slam = new SLAM(*sensor);
+
     Dali::Application application = Dali::Application::New(&argc, &argv);
     UbuntuServer server(application);
     int error = server.GetError();
+
     if (not error) application.MainLoop();
+
+    delete slam;
+    delete sensor;
     return 0;
 }

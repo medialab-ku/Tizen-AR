@@ -1,9 +1,9 @@
 #include "SLAM.h"
 
-SLAM::SLAM()
+SLAM::SLAM(SensorDevice &sensor) : _sensor(sensor)
 {
     const std::string orb = "../res/SLAM/ORB.bin";
-    const std::string settings = "../res/SLAM/RealSense.yaml";
+    const std::string settings = sensor.GetConfigPath();
     _orb = new ORB_SLAM2::System(orb, settings, ORB_SLAM2::System::RGBD);
 }
 

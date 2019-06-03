@@ -7,6 +7,7 @@
 #include <librealsense2/rs.hpp>
 #include <exception>
 #include <iostream>
+#include <string>
 
 /**
  * @author leejm
@@ -26,12 +27,15 @@ class SensorDevice
     private:
         static SensorDevice *_tum;
         static SensorDevice *_rs;
+        std::string _configPath;
 
     protected:
         virtual void Init() = 0;
         virtual bool IsExists() = 0;
 
     public:
+        SensorDevice(std::string configPath) : _configPath(configPath) { }
+
         /**
          * @breif
          * Find available device and retrun its instance.
@@ -54,11 +58,22 @@ class SensorDevice
          * stereo: right camera image.
          */
         virtual void GetImage(cv::Mat &left, cv::Mat &right) = 0;
+
+        std::string GetConfigPath() { return _configPath; }
 };
 
 class TUM : public SensorDevice
 {
+    private:
+        int seq;
+        int maxSeq;
+        
+        std::vector<cv::Mat> imRGB;
+        std::vector<cv::Mat> imD;
+        std::vector<double> timestamps;
+
     public:
+        TUM() : SensorDevice("../res/SLAM/TUM1.yaml") { }
         void GetImage(cv::Mat& left, cv::Mat& right) override;
 
     protected:
@@ -67,19 +82,12 @@ class TUM : public SensorDevice
 
     private:
         void _LoadImages(const std::string &strAssociationFilename, const std::string &strSeqFilename);
-
-    private:
-        int seq;
-        int maxSeq;
-        
-        std::vector<cv::Mat> imRGB;
-        std::vector<cv::Mat> imD;
-        std::vector<double> timestamps;
 };
 
 class Realsense : public SensorDevice
 {
     public:
+        Realsense() : SensorDevice("../res/SLAM/RealSense.yaml") { }
         ~Realsense();
         void GetImage(cv::Mat &left, cv::Mat &right) override;
 
