@@ -6,15 +6,3 @@ CameraFrameActor::CameraFrameActor(Dali::Stage &stage, Dali::CameraActor &actor)
 {
     
 }
-
-Vec3
-CameraFrameActor::GetRealPosition()
-{
-    return GetPosition();
-}
-
-Quat 
-CameraFrameActor::GetRealRotation()
-{
-    return GetRotation();
-}

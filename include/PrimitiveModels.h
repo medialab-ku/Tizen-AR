@@ -111,20 +111,6 @@ static const unsigned short texCubeIndex[] = {
     35, 33, 34 
 };
 
-static Vertex_Textured planeVertices[] = {
-	{Vector3(1.0f, 0.0f, 1.0f),   Vector2(1.0, 1.0), Vector3(0.0, -1.0, 0.0)},
-	{Vector3(-1.0f, 0.0f, -1.0f), Vector2(0.0, 0.0), Vector3(0.0, -1.0, 0.0)},
-	{Vector3(1.0f, 0.0f, -1.0f),  Vector2(1.0, 0.0), Vector3(0.0, -1.0, 0.0)},
-	{Vector3(-1.0f, 0.0f, 1.0f),  Vector2(0.0, 1.0), Vector3(0.0, -1.0, 0.0)},
-};
-
-static const unsigned short planeIndex[] = {
-	2, 1, 0,
-	0, 1, 3,
-	3, 1, 0,
-	0, 1, 2
-};
-
 struct Vertex
     {
       Vector3 aPosition;
@@ -138,7 +124,7 @@ struct Vertex
     const Vector3 COLOR4( 0.0f, 0.0f, 1.0f );
     const Vector3 COLOR5( 1.0f, 0.0f, 0.0f );
 
-    Vertex vertices[] = {
+    Vertex cubeVertices[] = {
       { Vector3(  1.0f,-1.0f,-1.0f ), COLOR5 },
       { Vector3( -1.0f, 1.0f,-1.0f ), COLOR5 },
       { Vector3(  1.0f, 1.0f,-1.0f ), COLOR5 },
@@ -177,6 +163,13 @@ struct Vertex
       { Vector3( -1.0f, 1.0f, 1.0f ), COLOR2 },
     };
 
+    Vertex planeVertices[] = {
+      { Vector3(1.0f, 0.0f, 1.0f),   COLOR0 },
+      { Vector3(-1.0f, 0.0f, -1.0f), COLOR1 },
+      { Vector3(1.0f, 0.0f, -1.0f),  COLOR2 },
+      { Vector3(-1.0f, 0.0f, 1.0f),  COLOR3 },
+    };
+
     // create indices
     // const unsigned short INDEX_CUBE[] = {
     //   2, 1, 0,
@@ -208,6 +201,13 @@ struct Vertex
       35, 33, 34 
     };
 
+    const unsigned short INDEX_PLANE[] = {
+      2, 1, 0,
+      0, 1, 3,
+      3, 1, 0,
+      0, 1, 2
+    };
+
 class PrimitiveCube : public Model
 {
 public:
@@ -218,7 +218,7 @@ public:
 		PropertyBuffer vertexBuffer = PropertyBuffer::New( Property::Map()
                                                        .Add( "aPosition", Property::VECTOR3 )
                                                        .Add( "aColor", Property::VECTOR3 ) );
-    	vertexBuffer.SetData( vertices, sizeof(vertices) / sizeof(Vertex) );
+    	vertexBuffer.SetData( cubeVertices, sizeof(cubeVertices) / sizeof(Vertex) );
 		Geometry geometry = Geometry::New();
     	geometry.AddVertexBuffer( vertexBuffer );
     	geometry.SetIndexBuffer( INDEX_CUBE,
@@ -260,12 +260,11 @@ public:
         AddTexture(0, textureName);
         PropertyBuffer vertexBuffer = PropertyBuffer::New( Property::Map()
 															   .Add( "aPosition", Property::VECTOR3 )
-															   .Add( "aTexCoord", Property::VECTOR2 )
-															   .Add( "aNormal", Property::VECTOR3 )  );
-	    vertexBuffer.SetData( planeVertices, sizeof(planeVertices) / sizeof(Vertex_Textured) );
+															   .Add( "aColor", Property::VECTOR3 )  );
+	    vertexBuffer.SetData( planeVertices, sizeof(planeVertices) / sizeof(Vertex) );
 	    Geometry geometry = Geometry::New();
 	    geometry.AddVertexBuffer( vertexBuffer );
-	    geometry.SetIndexBuffer( planeIndex, sizeof(planeIndex)/sizeof(planeIndex[0]) );
+	    geometry.SetIndexBuffer( INDEX_PLANE, sizeof(INDEX_PLANE)/sizeof(INDEX_PLANE[0]) );
 	    geometry.SetType( Geometry::TRIANGLES );
 
 		SetGeometry(geometry);

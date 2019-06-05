@@ -18,12 +18,12 @@ class DebugScene : public Scene
             shader.RegisterProperty("uAlpha", 1.0f);
             PrimitiveCube model("wood.png", shader);
             _parent = new GraphicsActor(_stage, model);
-            _parent->SetPosition(-0.2, 0.05, 0);
+            _parent->SetPosition(-0.1, 0.02, 0);
             _parent->SetSize(0.02, 0.02, 0.02);
             AddActor(_parent);
 
             _child = new GraphicsActor(_stage, model);
-            _child->SetPosition(0.2, 0.05, 0);
+            _child->SetPosition(0.1, 0.02, 0);
             _child->SetSize(0.02, 0.02, 0.02);
             AddActor(_child);
         }
@@ -37,27 +37,35 @@ class DebugScene : public Scene
                 // s pressed
                 if (event.keyCode == 39)
                 {
-
                     if(_state)
                     {
-                        _parent->GetActor().Add(_child->GetActor());
-                        std::cout << _child->GetRealRotation().ToDali() << std::endl;
+                        _parent->AddChild(_child);
                     }
                     else
                     {
-                        _parent->GetActor().Remove(_child->GetActor());
-                        _stage.Add(_child->GetActor());
-                        std::cout << _child->GetRealRotation().ToDali() << std::endl;
+                        _parent->RemoveChild(_child);
                     }
 
                     _state = not _state;
+                }
+
+                // a pressed
+                if (event.keyCode == 38)
+                {
+                    _parent->RotateBy(Quat(Dali::Quaternion(Radian(0), Radian(Degree(90)), Radian(0))));
+                }
+
+                // d pressed
+                if (event.keyCode == 40)
+                {
+                    _child->RotateBy(Quat(Dali::Quaternion(Radian(0), Radian(Degree(90)), Radian(0))));
                 }
 
                 // enter pressed
                 if(event.keyCode == 36)
                 {
                     std::cout << _parent->GetPosition().ToDali() << std::endl;
-                    std::cout << _parent->GetRealPosition().ToDali() << std::endl;
+                    std::cout << _plane->GetPosition().ToDali() << std::endl;
                 }
             }
         }

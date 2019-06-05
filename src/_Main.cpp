@@ -210,7 +210,7 @@ class UbuntuServer : public Dali::ConnectionTracker
 
                     _planeNormal = Vec3(eq(0), eq(1), eq(2));
                     _planeNormal.Normalize();
-                    if (_planeNormal.y < 0) _planeNormal = -_planeNormal;
+                    if (_planeNormal.y > 0) _planeNormal = -_planeNormal;
                     _planePos = Vec3(pos);
                 }
             }

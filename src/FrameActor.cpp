@@ -7,8 +7,9 @@ FrameActor::FrameActor(Dali::Stage &stage)
       _spaceBasisY(Vec3::up),
       _spaceBasisZ(Vec3::forward),
       _spaceOrigin(Vec3::zero),
-      _childs(),
-      _parent(nullptr)
+      //_childs(),
+      _parent(nullptr),
+      _plane(nullptr)
 {
     _actor = Dali::Actor::New();
     _actor.SetAnchorPoint(Dali::AnchorPoint::CENTER);
@@ -37,8 +38,7 @@ void
 FrameActor::SetPosition(float x, float y, float z)
 {
     _position = Vec3(x, y, z);
-    auto real = GetRealPosition();
-    _actor.SetPosition(real.ToDali());
+    _actor.SetPosition(_position.ToDali());
 }
 
 void
@@ -51,8 +51,7 @@ void
 FrameActor::SetRotation(float x, float y, float z, float w)
 {
     _rotation = Quat(x, y, z, w);
-    auto real = GetRealRotation();
-    _actor.SetOrientation(real.ToDali());
+    _actor.SetOrientation(_rotation.ToDali());
 }
 
 void
@@ -78,66 +77,35 @@ FrameActor::SetSize(Vec3 size)
 void
 FrameActor::RotateBy(Quat rot)
 {
-    auto curRot = GetRealRotation().ToDali();
+    auto curRot = _rotation.ToDali();
     auto paramRot = rot.ToDali();
     auto newRot = paramRot * curRot;
     SetRotation(Quat(newRot));
 }
 
-Vec3
-FrameActor::GetRealPosition()
-{
-    return (_spaceBasisX * _position.x) 
-            + (_spaceBasisY * _position.y) 
-            + (_spaceBasisZ * _position.z) 
-            + _spaceOrigin;
-}
-
-Quat
-FrameActor::GetRealRotation()
-{
-    // Assuming that the basis is Orthonormal
-    auto basisRot = Dali::Quaternion(_spaceBasisX.ToDali(), _spaceBasisY.ToDali(), _spaceBasisZ.ToDali());
-    auto real = _rotation.ToDali() * basisRot;
-    //auto real = basisRot * _rotation.ToDali();
-    //auto real = basisRot;
-    return Quat(real);
-}
-
 void
-FrameActor::OnSpaceUpdated(Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin)
+FrameActor::OnSpaceUpdated(FrameActor *plane, Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin)
 {
+    _plane = plane;
     _spaceBasisX = basisX;
     _spaceBasisY = basisY;
     _spaceBasisZ = basisZ;
     _spaceOrigin = origin;
-    SetPosition(GetPosition());
-    SetRotation(GetRotation());
 }
 
 void
 FrameActor::AddChild(FrameActor *child)
 {
-    bool found = (std::find(_childs.begin(), _childs.end(), child) != _childs.end());
-    if (!found)
-    {
-        _childs.push_back(child);
-        _actor.Add(child->GetActor());
-        child->_parent = this;
-    }
+    _actor.Add(child->GetActor());
+    child->_parent = this;
 }
 
 void
 FrameActor::RemoveChild(FrameActor *child)
 {
-    bool found = (std::find(_childs.begin(), _childs.end(), child) != _childs.end());
-    if (found)
-    {
-        _childs.remove(child);
-        _actor.Remove(child->GetActor());
-        _stage.Add(child->GetActor());
-        child->_parent = nullptr;
-    }
+    _actor.Remove(child->GetActor());
+    if (_plane) _plane->AddChild(child);
+    else child->_parent = nullptr;
 }
 
 void

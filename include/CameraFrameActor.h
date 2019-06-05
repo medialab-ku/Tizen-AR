@@ -15,8 +15,6 @@ class CameraFrameActor : public FrameActor
 {
     public:
         CameraFrameActor(Dali::Stage &stage, Dali::CameraActor &actor);
-        Vec3 GetRealPosition() override;
-        Quat GetRealRotation() override;
 
     private:
         Dali::CameraActor _cameraActor;

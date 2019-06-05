@@ -10,6 +10,13 @@
 #include "CameraFrameActor.h"
 #include "PrimitiveModels.h"
 
+class PlaneActor : public GraphicsActor
+{
+    public:
+        PlaneActor(Dali::Stage &stage, Model &model);
+        void OnSpaceUpdated(FrameActor *plane, Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin) override;
+};
+
 class Scene
 {
     protected:

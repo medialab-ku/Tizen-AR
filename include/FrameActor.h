@@ -21,8 +21,9 @@ class FrameActor
         Vec3 _size;
         Vec3 _spaceBasisX, _spaceBasisY, _spaceBasisZ;
         Vec3 _spaceOrigin;
-        std::list<FrameActor*> _childs;
+        //std::list<FrameActor*> _childs;
         FrameActor *_parent;
+        FrameActor *_plane;
 
     protected:
         FrameActor(Dali::Stage &stage, Dali::Actor &actor);
@@ -43,15 +44,13 @@ class FrameActor
         virtual void SetSize(float x, float y, float z);
         virtual void SetSize(Vec3 size);
         virtual void RotateBy(Quat rot);
-        virtual Vec3 GetRealPosition();
-        virtual Quat GetRealRotation();
 
         // Hierarchy (It's not completed. Don't use this.)
         void AddChild(FrameActor *child);
         void RemoveChild(FrameActor *child);
         void Unparent();
 
-        void OnSpaceUpdated(Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin);
+        virtual void OnSpaceUpdated(FrameActor *plane, Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin);
 
         /*
         * Called at first frame right after the Dali::Actor is initialized.
