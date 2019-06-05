@@ -6,35 +6,41 @@
 #include <list>
 #include <iostream>
 #include "FrameActor.h"
+#include "GraphicsActor.h"
 #include "CameraFrameActor.h"
+#include "PrimitiveModels.h"
 
 class Scene
 {
-    public:
-        Scene(Dali::Stage &stage, Dali::CameraActor &camera, Dali::Layer &uiLayer, FrameActor *plane);
-        void Update(double deltaTime);
-
-    public:
-        virtual void Init() = 0;
-        virtual void OnStart();
-        virtual void OnUpdate(double deltaTime);
-        virtual void Dispose();
-        virtual void OnKeyEvent(const Dali::KeyEvent &event);
-        virtual void OnTouch(Dali::Actor actor, const Dali::TouchData &touch);
-
-    protected:
-        void AddActor(FrameActor *actor);
-        void RemoveActor(FrameActor *actor);
-        void AddUI(Dali::Actor &ui);    // todo : Wrap with FrameActor
-
     protected:
         // Essentials
         // FrameActor is pointer since it can be created and removed at any time
         std::list<FrameActor*> _actorList;
         Dali::Stage _stage;
-        Dali::Layer _uiLayer;
         FrameActor *_plane;
         CameraFrameActor *_camera;
+        Vec3 _basisX, _basisY, _basisZ;
+        Vec3 _origin;
+
+    public:
+        Scene(Dali::Stage &stage, Dali::CameraActor &camera);
+        void OnStart();
+        void OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin);
+        void OnKeyEvent(const Dali::KeyEvent &event);
+        void OnTouch(Dali::Actor actor, const Dali::TouchData &touch);
+
+    protected:
+        virtual void Start();
+        virtual void Update(double deltaTime);
+        virtual void KeyEvent(const Dali::KeyEvent &event);
+        virtual void Touch(Dali::Actor actor, const Dali::TouchData &touch);
+
+    protected:
+        void AddActor(FrameActor *actor);
+        void RemoveActor(FrameActor *actor);
+
+    private:
+        void _UpdatePlane(Vec3 planeNormal, Vec3 planeOrigin);
 };
 
 #endif

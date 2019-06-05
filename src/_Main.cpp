@@ -9,6 +9,7 @@
 #include "SLAM.h"
 #include "SensorDevice.h"
 #include "NetThread.h"
+#include "DebugScene.h"
 
 const unsigned int      TICK_RATE           = 30;           // per second
 const float             Focal_X             = 609.275f;     // realsense
@@ -32,13 +33,14 @@ class UbuntuServer : public Dali::ConnectionTracker
         Dali::Application _application;
         cv::Mat _rgb, _depth;
         NetThread _netThread;
+        Scene *_scene;
+        Eigen::Vector4f _planeEq;
+        Eigen::Vector3f _planePos;
 
         // Dali
         Dali::Stage _stage;
         Dali::CameraActor _camera;
         Dali::Timer _timer;
-        Dali::Toolkit::Control mUIControl;
-        Dali::Layer mUILayer;
         Background _bg;
 
         // Plane
@@ -71,6 +73,7 @@ class UbuntuServer : public Dali::ConnectionTracker
             _InitCamera();
             _InitSignals();
             _bg.Create(_stage);
+            _scene = new DebugScene(_stage, _camera);
         }
 
         bool __Update__()
@@ -90,6 +93,8 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _initTime = std::chrono::high_resolution_clock::now();
                 _oldTime = _initTime;
                 _currentTime = _initTime;
+
+                _scene->OnStart();
             }
             // Real update routine starts from now on
             else
@@ -98,6 +103,7 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _UpdateSlam(elapsedTime);
                 _UpdatePlane();
                 _bg.UpdateMat(_rgb);
+                _UpdateScene(deltaTime);
             }
             
             return true;
@@ -121,12 +127,15 @@ class UbuntuServer : public Dali::ConnectionTracker
                     Net::BeginServer(ip, 9999);
                 }
             }
+
+            _scene->OnKeyEvent(event);
         }
 
-        // bool __OnTouch__(Dali::Actor actor, const Dali::TouchData &touch)
-        // {
-        //     return true;
-        // }
+        bool __OnTouch__(Dali::Actor actor, const Dali::TouchData &touch)
+        {
+            _scene->OnTouch(actor, touch);
+            return true;
+        }
 
         void _InitCamera()
         {
@@ -146,7 +155,6 @@ class UbuntuServer : public Dali::ConnectionTracker
         void _InitSignals()
         {
             _stage.KeyEventSignal().Connect( this, &UbuntuServer::__OnKeyEvent__ );
-            //_uiLayer.TouchSignal().Connect(this, &UbuntuServer::__OnTouch__);
             _timer = Dali::Timer::New(1000 / TICK_RATE);
             _timer.TickSignal().Connect(this, &UbuntuServer::__Update__);
             _timer.Start();
@@ -174,18 +182,30 @@ class UbuntuServer : public Dali::ConnectionTracker
 
         void _UpdatePlane()
         {
-            Eigen::Vector4f planeEq;
-            Eigen::Vector3f planePos;
+            Eigen::Vector4f eq;
+            Eigen::Vector3f pos;
             int inlierCount;
             if (_updatePlane)
             {
-                slam->GetPlane(planeEq, planePos, inlierCount);
+                slam->GetPlane(eq, pos, inlierCount);
                 if(inlierCount >= _planeInliers)
                 {
                     _planeInliers = inlierCount;
-                    _netThread.UpdatePlaneData(planeEq, planePos);
+                    _planeEq = eq;
+                    _planePos = pos;
+                    _netThread.UpdatePlaneData(_planeEq, _planePos);
                 }
             }
+        }
+
+        void _UpdateScene(double deltaTime)
+        {
+            Vec3 planeNormal(_planeEq(0), _planeEq(1), _planeEq(2));
+            planeNormal.Normalize();
+            if (planeNormal.y < 0) planeNormal = -planeNormal;
+            Vec3 planeOrigin(_planePos);
+
+            _scene->OnUpdate(deltaTime, planeNormal, planeOrigin);
         }
 };
 

@@ -1,30 +1,71 @@
 #include "Scene.h"
 
-Scene::Scene(Dali::Stage &stage, Dali::CameraActor &camera, Dali::Layer &uiLayer, FrameActor *plane)
+Scene::Scene(Dali::Stage &stage, Dali::CameraActor &camera)
     : _actorList(),
       _stage(stage),
-      _uiLayer(uiLayer),
-      _plane(plane)
+      _origin(), _basisX(), _basisY(), _basisZ()
 {
-    AddActor(plane);
+    // plane actor
+    Dali::Shader planeShader;
+    if (not Assets::GetShader("vertexColor.glsl", "fragmentColor.glsl", planeShader))
+        std::cerr << "Failed to load plane shader." << std::endl;
+    planeShader.RegisterProperty("uAlpha", 0.3f);
+    PrimitiveCube model("wood.png", planeShader);
+    _plane = new GraphicsActor(_stage, model);
+    _plane->SetName("Plane");
+    _plane->SetSize(1, 0.05, 1);
+    AddActor(_plane);
+
+    // camera actor
     _camera = new CameraFrameActor(stage, camera);
     AddActor(_camera);
 }
 
 void
-Scene::Update(double deltaTime)
+Scene::OnStart()
 {
-    OnUpdate(deltaTime);
+    Start();
+}
+
+void
+Scene::OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin)
+{
+    _UpdatePlane(planeNormal, planeOrigin);
+    Update(deltaTime);
     for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
         (*itr)->OnUpdate(deltaTime);
     }
 }
 
-void
-Scene::Dispose()
+void 
+Scene::OnKeyEvent(const Dali::KeyEvent &event)
 {
-    _actorList.clear();
+    KeyEvent(event);
+}
+        
+void 
+Scene::OnTouch(Dali::Actor actor, const Dali::TouchData &touch)
+{
+    Touch(actor, touch);
+}
+
+void Scene::_UpdatePlane(Vec3 planeNormal, Vec3 planeOrigin)
+{
+    // origin
+    _origin = planeOrigin;
+
+    // basis
+    auto n = planeNormal.ToDali();
+    auto z = Dali::Vector3::NEGATIVE_XAXIS.Cross(n);
+    auto x = n.Cross(z);
+    _basisX = x;
+    _basisY = n;
+    _basisZ = z;
+    Quat planeRotation(Dali::Quaternion(x, n, z));
+
+    _plane->SetPosition(_origin);
+    _plane->SetRotation(planeRotation);
 }
 
 void 
@@ -49,13 +90,7 @@ Scene::RemoveActor(FrameActor *actor)
 }
 
 void
-Scene::AddUI(Dali::Actor &ui)
-{
-    _uiLayer.Add(ui);
-}
-
-void
-Scene::OnStart()
+Scene::Start()
 {
     // Put all actors on the plane
     for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
@@ -77,22 +112,19 @@ Scene::OnStart()
 }
 
 void
-Scene::OnUpdate(double deltaTime)
-{
-    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
-    {
-        (*itr)->OnUpdate(deltaTime);
-    }
-}
-
-void
-Scene::OnKeyEvent(const Dali::KeyEvent &event)
+Scene::Update(double deltaTime)
 {
 
 }
 
 void
-Scene::OnTouch(Dali::Actor actor, const Dali::TouchData &touch)
+Scene::KeyEvent(const Dali::KeyEvent &event)
+{
+
+}
+
+void
+Scene::Touch(Dali::Actor actor, const Dali::TouchData &touch)
 {
 
 }

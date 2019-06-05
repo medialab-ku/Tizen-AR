@@ -5,6 +5,8 @@
 #include "obj-loader.h"
 using namespace Dali;
 
+namespace {
+
 const char *VERTEX_SHADER = DALI_COMPOSE_SHADER(
     attribute mediump vec3 aPosition;\n        // DALi shader builtin
         attribute mediump vec3 aColor;\n       // DALi shader builtin
@@ -305,4 +307,5 @@ public:
     }
 };
 
+}
 #endif

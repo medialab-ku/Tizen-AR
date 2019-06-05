@@ -13,6 +13,18 @@
  */
 class FrameActor
 {
+    protected:
+        Dali::Actor _actor;
+        Dali::Stage _stage;
+        Vec3 _position;
+        Quat _rotation;
+        Vec3 _size;
+        std::list<FrameActor*> _childs;
+        FrameActor *_parent;
+
+    protected:
+        FrameActor(Dali::Stage &stage, Dali::Actor &actor);
+
     public:
         FrameActor(Dali::Stage &stage);
         virtual ~FrameActor();
@@ -44,18 +56,6 @@ class FrameActor
         * Being called every timer event
         */
         virtual void OnUpdate(double deltaTime);
-
-    protected:
-        FrameActor(Dali::Stage &stage, Dali::Actor &actor);
-        
-    protected:
-        Dali::Actor _actor;
-        Dali::Stage _stage;
-        Vec3 _position;
-        Quat _rotation;
-        Vec3 _size;
-        std::list<FrameActor*> _childs;
-        FrameActor *_parent;
 };
 
 #endif

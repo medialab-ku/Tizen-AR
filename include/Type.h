@@ -26,6 +26,7 @@ public:
     Vec3 operator+(const Vec3&) const;
     Vec3 operator-(const Vec3&) const;
     Vec3 operator*(const float) const;
+    Vec3 operator-() const;
     float Length() const;
     Vec3 Normalize();
 

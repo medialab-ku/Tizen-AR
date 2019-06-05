@@ -61,6 +61,12 @@ Vec3::operator* (const float k) const
     return Vec3(x*k, y*k, z*k);
 }
 
+Vec3
+Vec3::operator- () const
+{
+    return Vec3(-x, -y, -z);
+}
+
 float
 Vec3::Length() const
 {
