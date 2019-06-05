@@ -3,6 +3,10 @@
 
 FrameActor::FrameActor(Dali::Stage &stage)
     : _stage(stage),
+      _spaceBasisX(Vec3::right),
+      _spaceBasisY(Vec3::up),
+      _spaceBasisZ(Vec3::forward),
+      _spaceOrigin(Vec3::zero),
       _childs(),
       _parent(nullptr)
 {
@@ -33,28 +37,28 @@ void
 FrameActor::SetPosition(float x, float y, float z)
 {
     _position = Vec3(x, y, z);
-    _actor.SetPosition(_position.ToDali());
+    auto real = GetRealPosition();
+    _actor.SetPosition(real.ToDali());
 }
 
 void
 FrameActor::SetPosition(Vec3 position)
 {
-    _position = position;
-    _actor.SetPosition(_position.ToDali());
+    SetPosition(position.x, position.y, position.z);
 }
 
 void
 FrameActor::SetRotation(float x, float y, float z, float w)
 {
     _rotation = Quat(x, y, z, w);
-    _actor.SetOrientation(_rotation.ToDali());
+    auto real = GetRealRotation();
+    _actor.SetOrientation(real.ToDali());
 }
 
 void
 FrameActor::SetRotation(Quat rotation)
 {
-    _rotation = rotation;
-    _actor.SetOrientation(_rotation.ToDali());
+    SetRotation(rotation.x, rotation.y, rotation.z, rotation.w);
 }
 
 void
@@ -74,9 +78,41 @@ FrameActor::SetSize(Vec3 size)
 void
 FrameActor::RotateBy(Quat rot)
 {
-    Dali::Quaternion newRot = _rotation.ToDali();
-    newRot *= rot.ToDali();
+    auto curRot = GetRealRotation().ToDali();
+    auto paramRot = rot.ToDali();
+    auto newRot = paramRot * curRot;
     SetRotation(Quat(newRot));
+}
+
+Vec3
+FrameActor::GetRealPosition()
+{
+    return (_spaceBasisX * _position.x) 
+            + (_spaceBasisY * _position.y) 
+            + (_spaceBasisZ * _position.z) 
+            + _spaceOrigin;
+}
+
+Quat
+FrameActor::GetRealRotation()
+{
+    // Assuming that the basis is Orthonormal
+    auto basisRot = Dali::Quaternion(_spaceBasisX.ToDali(), _spaceBasisY.ToDali(), _spaceBasisZ.ToDali());
+    auto real = _rotation.ToDali() * basisRot;
+    //auto real = basisRot * _rotation.ToDali();
+    //auto real = basisRot;
+    return Quat(real);
+}
+
+void
+FrameActor::OnSpaceUpdated(Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin)
+{
+    _spaceBasisX = basisX;
+    _spaceBasisY = basisY;
+    _spaceBasisZ = basisZ;
+    _spaceOrigin = origin;
+    SetPosition(GetPosition());
+    SetRotation(GetRotation());
 }
 
 void
@@ -99,6 +135,7 @@ FrameActor::RemoveChild(FrameActor *child)
     {
         _childs.remove(child);
         _actor.Remove(child->GetActor());
+        _stage.Add(child->GetActor());
         child->_parent = nullptr;
     }
 }

@@ -34,8 +34,11 @@ class UbuntuServer : public Dali::ConnectionTracker
         cv::Mat _rgb, _depth;
         NetThread _netThread;
         Scene *_scene;
-        Eigen::Vector4f _planeEq;
-        Eigen::Vector3f _planePos;
+        Vec3 _cameraPos;
+        Quat _cameraRot;
+        Vec3 _planeNormal;
+        Vec3 _planePos;
+        bool _updateSlam;
 
         // Dali
         Dali::Stage _stage;
@@ -57,6 +60,7 @@ class UbuntuServer : public Dali::ConnectionTracker
     public:
         UbuntuServer(Dali::Application &application)
             : _application(application),
+              _updateSlam(true),
               error(0)
         {
             _application.InitSignal().Connect(this, &UbuntuServer::__Create__);
@@ -126,6 +130,14 @@ class UbuntuServer : public Dali::ConnectionTracker
                     if (ARGC > 1) ip = std::string(ARGV[1]);
                     Net::BeginServer(ip, 9999);
                 }
+
+                // spacebar pressed
+                if (event.keyCode == 65)
+                {
+                    _updateSlam = not _updateSlam;
+                }
+
+                std::cout << event.keyCode << std::endl;
             }
 
             _scene->OnKeyEvent(event);
@@ -173,11 +185,14 @@ class UbuntuServer : public Dali::ConnectionTracker
 
         void _UpdateSlam(double elapsedTime)
         {
-            sensor->GetImage(_rgb, _depth);
-            slam->Update(_rgb, _depth, elapsedTime, _camera);
-            _netThread.UpdateCameraData(_camera.GetCurrentPosition(),
-                                        _camera.GetCurrentOrientation(),
-                                        _rgb, _depth);
+            if (_updateSlam)
+            {
+                sensor->GetImage(_rgb, _depth);
+                slam->Update(_rgb, _depth, elapsedTime, _cameraPos, _cameraRot);
+                _netThread.UpdateCameraData(_camera.GetCurrentPosition(),
+                                            _camera.GetCurrentOrientation(),
+                                            _rgb, _depth);
+            }
         }
 
         void _UpdatePlane()
@@ -191,21 +206,19 @@ class UbuntuServer : public Dali::ConnectionTracker
                 if(inlierCount >= _planeInliers)
                 {
                     _planeInliers = inlierCount;
-                    _planeEq = eq;
-                    _planePos = pos;
-                    _netThread.UpdatePlaneData(_planeEq, _planePos);
+                    _netThread.UpdatePlaneData(eq, pos);
+
+                    _planeNormal = Vec3(eq(0), eq(1), eq(2));
+                    _planeNormal.Normalize();
+                    if (_planeNormal.y < 0) _planeNormal = -_planeNormal;
+                    _planePos = Vec3(pos);
                 }
             }
         }
 
         void _UpdateScene(double deltaTime)
         {
-            Vec3 planeNormal(_planeEq(0), _planeEq(1), _planeEq(2));
-            planeNormal.Normalize();
-            if (planeNormal.y < 0) planeNormal = -planeNormal;
-            Vec3 planeOrigin(_planePos);
-
-            _scene->OnUpdate(deltaTime, planeNormal, planeOrigin);
+            _scene->OnUpdate(deltaTime, _planeNormal, _planePos, _cameraPos, _cameraRot);
         }
 };
 

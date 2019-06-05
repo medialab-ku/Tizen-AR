@@ -1,5 +1,14 @@
 #include "Type.h"
 
+Vec3 Vec3::zero(0, 0, 0);
+Vec3 Vec3::one(1, 1, 1);
+Vec3 Vec3::right(1, 0, 0);
+Vec3 Vec3::left(-1, 0, 0);
+Vec3 Vec3::up(0, 1, 0);
+Vec3 Vec3::down(0, -1, 0);
+Vec3 Vec3::forward(0, 0, 1);
+Vec3 Vec3::back(0, 0, -1);
+
 Vec3::Vec3()
     : x(0.0f), y(0.0f), z(0.0f)
 {

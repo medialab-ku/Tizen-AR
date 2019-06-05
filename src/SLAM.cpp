@@ -16,7 +16,7 @@ SLAM::~SLAM()
     delete _orb;
 }
 
-void SLAM::Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Dali::CameraActor &camera)
+void SLAM::Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Vec3 &outCameraPos, Quat &outCameraRot)
 {
     try
     {
@@ -27,8 +27,9 @@ void SLAM::Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Dali::CameraAc
         Vec3 pos( Eigen::Vector3f(twc.at<float>(0), twc.at<float>(1), twc.at<float>(2)) );
         Quat rot( Eigen::Vector4f(q[0], q[1], q[2], q[3]) );
         rot = rot.Inverse(); // ORB-SLAM2 returns C->W. So we need inverse of that quaternion.
-        camera.SetPosition( pos.ToDali() );
-        camera.SetOrientation( rot.ToDali() );
+
+        outCameraPos = pos;
+        outCameraRot = rot;
     }
     catch(const std::exception& e)
     {

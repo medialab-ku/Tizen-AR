@@ -25,9 +25,14 @@ class Scene
     public:
         Scene(Dali::Stage &stage, Dali::CameraActor &camera);
         void OnStart();
-        void OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin);
+        void OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 cameraPos, Quat cameraRot);
         void OnKeyEvent(const Dali::KeyEvent &event);
         void OnTouch(Dali::Actor actor, const Dali::TouchData &touch);
+
+        Vec3 GetBasisX() { return _basisX; }
+        Vec3 GetBasisY() { return _basisY; }
+        Vec3 GetBasisZ() { return _basisZ; }
+        Vec3 GetOrigin() { return _origin; }
 
     protected:
         virtual void Start();
@@ -41,6 +46,7 @@ class Scene
 
     private:
         void _UpdatePlane(Vec3 planeNormal, Vec3 planeOrigin);
+        void _UpdateCamera(Vec3 cameraPos, Quat cameraRot);
 };
 
 #endif

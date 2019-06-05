@@ -11,10 +11,10 @@ Scene::Scene(Dali::Stage &stage, Dali::CameraActor &camera)
         std::cerr << "Failed to load plane shader." << std::endl;
     planeShader.RegisterProperty("uAlpha", 0.3f);
     PrimitiveCube model("wood.png", planeShader);
-    _plane = new GraphicsActor(_stage, model);
-    _plane->SetName("Plane");
-    _plane->SetSize(1, 0.05, 1);
-    AddActor(_plane);
+    // _plane = new GraphicsActor(_stage, model);
+    // _plane->SetName("Plane");
+    // _plane->SetSize(1, 0.05, 1);
+    // AddActor(_plane);
 
     // camera actor
     _camera = new CameraFrameActor(stage, camera);
@@ -28,9 +28,10 @@ Scene::OnStart()
 }
 
 void
-Scene::OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin)
+Scene::OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 cameraPos, Quat cameraRot)
 {
     _UpdatePlane(planeNormal, planeOrigin);
+    _UpdateCamera(cameraPos, cameraRot);
     Update(deltaTime);
     for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
@@ -50,7 +51,8 @@ Scene::OnTouch(Dali::Actor actor, const Dali::TouchData &touch)
     Touch(actor, touch);
 }
 
-void Scene::_UpdatePlane(Vec3 planeNormal, Vec3 planeOrigin)
+void 
+Scene::_UpdatePlane(Vec3 planeNormal, Vec3 planeOrigin)
 {
     // origin
     _origin = planeOrigin;
@@ -62,10 +64,18 @@ void Scene::_UpdatePlane(Vec3 planeNormal, Vec3 planeOrigin)
     _basisX = x;
     _basisY = n;
     _basisZ = z;
-    Quat planeRotation(Dali::Quaternion(x, n, z));
 
-    _plane->SetPosition(_origin);
-    _plane->SetRotation(planeRotation);
+    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
+    {
+        (*itr)->OnSpaceUpdated(_basisX, _basisY, _basisZ, _origin);
+    }
+}
+
+void
+Scene::_UpdateCamera(Vec3 cameraPos, Quat cameraRot)
+{
+    _camera->SetPosition(cameraPos);
+    _camera->SetRotation(cameraRot);
 }
 
 void 
@@ -74,6 +84,7 @@ Scene::AddActor(FrameActor *actor)
     bool found = (std::find(_actorList.begin(), _actorList.end(), actor) != _actorList.end());
     if (!found)
     {
+        actor->OnSpaceUpdated(_basisX, _basisY, _basisZ, _origin);
         _actorList.push_back(actor);
     }
 }
@@ -84,6 +95,7 @@ Scene::RemoveActor(FrameActor *actor)
     bool found = (std::find(_actorList.begin(), _actorList.end(), actor) != _actorList.end());
     if (found)
     {
+        actor->OnSpaceUpdated(Vec3::right, Vec3::up, Vec3::forward, Vec3::zero);
         _actorList.remove(actor);
         delete actor;
     }
@@ -92,19 +104,6 @@ Scene::RemoveActor(FrameActor *actor)
 void
 Scene::Start()
 {
-    // Put all actors on the plane
-    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
-    {
-        std::cout << (*itr)->GetPosition().ToDali() << std::endl;
-        if ((*itr) == _plane) continue;
-
-        auto pos = (*itr)->GetPosition();
-        auto rot = (*itr)->GetRotation();
-        (*itr)->SetPosition(pos + _plane->GetPosition());
-        (*itr)->RotateBy(_plane->GetRotation());
-        std::cout << (*itr)->GetName() << ": " << pos.ToDali() << std::endl;
-    }
-
     for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
         (*itr)->OnStart();

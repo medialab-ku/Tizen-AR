@@ -30,6 +30,9 @@ public:
     float Length() const;
     Vec3 Normalize();
 
+    static Vec3 zero, one;
+    static Vec3 right, left, up, down, forward, back;
+
 public:
     float x, y, z;
 };
