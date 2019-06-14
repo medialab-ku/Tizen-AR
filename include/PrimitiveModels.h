@@ -170,22 +170,6 @@ struct Vertex
       { Vector3(-1.0f, 0.0f, 1.0f),  COLOR3 },
     };
 
-    // create indices
-    // const unsigned short INDEX_CUBE[] = {
-    //   2, 1, 0,
-    //   5, 4, 3,
-    //   8, 7, 6,
-    //   11, 10, 9,
-    //   14, 13, 12,
-    //   17, 16, 15,
-    //   20, 19, 18,
-    //   23, 22, 21,
-    //   26, 25, 24,
-    //   29, 28, 27,
-    //   32, 31, 30,
-    //   35, 34, 33
-    // };
-
     const unsigned short INDEX_CUBE[] = {
       2, 0, 1, 
       5, 3, 4, 

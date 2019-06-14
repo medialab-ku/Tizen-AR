@@ -208,7 +208,7 @@ class UbuntuServer : public Dali::ConnectionTracker
                     _planeInliers = inlierCount;
                     _netThread.UpdatePlaneData(eq, pos);
 
-                    _planeNormal = Vec3(eq(0), eq(1), eq(2));
+                    _planeNormal = Vec3(Eigen::Vector3f(eq(0), eq(1), eq(2)));
                     _planeNormal.Normalize();
                     if (_planeNormal.y > 0) _planeNormal = -_planeNormal;
                     _planePos = Vec3(pos);

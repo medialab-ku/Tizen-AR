@@ -40,6 +40,10 @@ void
 Scene::Start()
 {
     OnStart();
+    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
+    {
+        (*itr)->OnStart();
+    }
 }
 
 void
@@ -130,10 +134,7 @@ Scene::RemoveActor(FrameActor *actor)
 void
 Scene::OnStart()
 {
-    for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
-    {
-        (*itr)->OnStart();
-    }
+    
 }
 
 void
