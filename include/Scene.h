@@ -31,10 +31,10 @@ class Scene
 
     public:
         Scene(Dali::Stage &stage, Dali::CameraActor &camera);
-        void OnStart();
-        void OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 cameraPos, Quat cameraRot);
-        void OnKeyEvent(const Dali::KeyEvent &event);
-        void OnTouch(Dali::Actor actor, const Dali::TouchData &touch);
+        void Start();
+        void Update(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 cameraPos, Quat cameraRot);
+        void KeyEvent(const Dali::KeyEvent &event);
+        void Touch(Dali::Actor actor, const Dali::TouchData &touch);
 
         Vec3 GetBasisX() { return _basisX; }
         Vec3 GetBasisY() { return _basisY; }
@@ -42,10 +42,10 @@ class Scene
         Vec3 GetOrigin() { return _origin; }
 
     protected:
-        virtual void Start();
-        virtual void Update(double deltaTime);
-        virtual void KeyEvent(const Dali::KeyEvent &event);
-        virtual void Touch(Dali::Actor actor, const Dali::TouchData &touch);
+        virtual void OnStart();
+        virtual void OnUpdate(double deltaTime);
+        virtual void OnKeyEvent(const Dali::KeyEvent &event);
+        virtual void OnTouch(Dali::Actor actor, const Dali::TouchData &touch);
 
     protected:
         void AddActor(FrameActor *actor);

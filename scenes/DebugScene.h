@@ -28,7 +28,7 @@ class DebugScene : public Scene
             AddActor(_child);
         }
 
-        void KeyEvent(const Dali::KeyEvent &event)
+        void OnKeyEvent(const Dali::KeyEvent &event)
         {
             static bool _state = true;
 

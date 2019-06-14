@@ -98,7 +98,7 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _oldTime = _initTime;
                 _currentTime = _initTime;
 
-                _scene->OnStart();
+                _scene->Start();
             }
             // Real update routine starts from now on
             else
@@ -140,12 +140,12 @@ class UbuntuServer : public Dali::ConnectionTracker
                 std::cout << event.keyCode << std::endl;
             }
 
-            _scene->OnKeyEvent(event);
+            _scene->KeyEvent(event);
         }
 
         bool __OnTouch__(Dali::Actor actor, const Dali::TouchData &touch)
         {
-            _scene->OnTouch(actor, touch);
+            _scene->Touch(actor, touch);
             return true;
         }
 
@@ -218,7 +218,7 @@ class UbuntuServer : public Dali::ConnectionTracker
 
         void _UpdateScene(double deltaTime)
         {
-            _scene->OnUpdate(deltaTime, _planeNormal, _planePos, _cameraPos, _cameraRot);
+            _scene->Update(deltaTime, _planeNormal, _planePos, _cameraPos, _cameraRot);
         }
 };
 

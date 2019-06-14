@@ -37,17 +37,17 @@ Scene::Scene(Dali::Stage &stage, Dali::CameraActor &camera)
 }
 
 void
-Scene::OnStart()
+Scene::Start()
 {
-    Start();
+    OnStart();
 }
 
 void
-Scene::OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 cameraPos, Quat cameraRot)
+Scene::Update(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 cameraPos, Quat cameraRot)
 {
     _UpdatePlane(planeNormal, planeOrigin);
     _UpdateCamera(cameraPos, cameraRot);
-    Update(deltaTime);
+    OnUpdate(deltaTime);
     for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
         (*itr)->OnUpdate(deltaTime);
@@ -55,15 +55,15 @@ Scene::OnUpdate(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 camer
 }
 
 void 
-Scene::OnKeyEvent(const Dali::KeyEvent &event)
+Scene::KeyEvent(const Dali::KeyEvent &event)
 {
-    KeyEvent(event);
+    OnKeyEvent(event);
 }
         
 void 
-Scene::OnTouch(Dali::Actor actor, const Dali::TouchData &touch)
+Scene::Touch(Dali::Actor actor, const Dali::TouchData &touch)
 {
-    Touch(actor, touch);
+    OnTouch(actor, touch);
 }
 
 void 
@@ -128,7 +128,7 @@ Scene::RemoveActor(FrameActor *actor)
 }
 
 void
-Scene::Start()
+Scene::OnStart()
 {
     for(auto itr = _actorList.begin(); itr != _actorList.end(); ++itr)
     {
@@ -137,19 +137,19 @@ Scene::Start()
 }
 
 void
-Scene::Update(double deltaTime)
+Scene::OnUpdate(double deltaTime)
 {
 
 }
 
 void
-Scene::KeyEvent(const Dali::KeyEvent &event)
+Scene::OnKeyEvent(const Dali::KeyEvent &event)
 {
 
 }
 
 void
-Scene::Touch(Dali::Actor actor, const Dali::TouchData &touch)
+Scene::OnTouch(Dali::Actor actor, const Dali::TouchData &touch)
 {
 
 }
