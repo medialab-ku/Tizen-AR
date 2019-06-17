@@ -7,6 +7,10 @@
 #include <iostream>
 #include "FrameActor.h"
 
+/**
+ * @brief
+ * Wrapper class of Dali::CameraActor. It is independent of scene basis.
+ */
 class CameraFrameActor : public FrameActor
 {
     public:

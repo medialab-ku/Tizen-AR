@@ -18,7 +18,7 @@ class SLAM
     public:
         SLAM(SensorDevice &sensor);
         ~SLAM();
-        void Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Dali::CameraActor &camera);
+        void Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Vec3 &outCameraPos, Quat &outCameraRot);
         void GetPlane(Eigen::Vector4f &eq, Eigen::Vector3f &pos, int &inlierCount);
 };
 

@@ -9,6 +9,7 @@
 #include "SLAM.h"
 #include "SensorDevice.h"
 #include "NetThread.h"
+#include "DebugScene.h"
 
 const unsigned int      TICK_RATE           = 30;           // per second
 const float             Focal_X             = 609.275f;     // realsense
@@ -32,13 +33,17 @@ class UbuntuServer : public Dali::ConnectionTracker
         Dali::Application _application;
         cv::Mat _rgb, _depth;
         NetThread _netThread;
+        Scene *_scene;
+        Vec3 _cameraPos;
+        Quat _cameraRot;
+        Vec3 _planeNormal;
+        Vec3 _planePos;
+        bool _updateSlam;
 
         // Dali
         Dali::Stage _stage;
         Dali::CameraActor _camera;
         Dali::Timer _timer;
-        Dali::Toolkit::Control mUIControl;
-        Dali::Layer mUILayer;
         Background _bg;
 
         // Plane
@@ -55,6 +60,7 @@ class UbuntuServer : public Dali::ConnectionTracker
     public:
         UbuntuServer(Dali::Application &application)
             : _application(application),
+              _updateSlam(true),
               error(0)
         {
             _application.InitSignal().Connect(this, &UbuntuServer::__Create__);
@@ -71,6 +77,7 @@ class UbuntuServer : public Dali::ConnectionTracker
             _InitCamera();
             _InitSignals();
             _bg.Create(_stage);
+            _scene = new DebugScene(_stage, _camera);
         }
 
         bool __Update__()
@@ -90,6 +97,8 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _initTime = std::chrono::high_resolution_clock::now();
                 _oldTime = _initTime;
                 _currentTime = _initTime;
+
+                _scene->Start();
             }
             // Real update routine starts from now on
             else
@@ -98,6 +107,7 @@ class UbuntuServer : public Dali::ConnectionTracker
                 _UpdateSlam(elapsedTime);
                 _UpdatePlane();
                 _bg.UpdateMat(_rgb);
+                _UpdateScene(deltaTime);
             }
             
             return true;
@@ -120,13 +130,24 @@ class UbuntuServer : public Dali::ConnectionTracker
                     if (ARGC > 1) ip = std::string(ARGV[1]);
                     Net::BeginServer(ip, 9999);
                 }
+
+                // spacebar pressed
+                if (event.keyCode == 65)
+                {
+                    _updateSlam = not _updateSlam;
+                }
+
+                std::cout << event.keyCode << std::endl;
             }
+
+            _scene->KeyEvent(event);
         }
 
-        // bool __OnTouch__(Dali::Actor actor, const Dali::TouchData &touch)
-        // {
-        //     return true;
-        // }
+        bool __OnTouch__(Dali::Actor actor, const Dali::TouchData &touch)
+        {
+            _scene->Touch(actor, touch);
+            return true;
+        }
 
         void _InitCamera()
         {
@@ -146,7 +167,6 @@ class UbuntuServer : public Dali::ConnectionTracker
         void _InitSignals()
         {
             _stage.KeyEventSignal().Connect( this, &UbuntuServer::__OnKeyEvent__ );
-            //_uiLayer.TouchSignal().Connect(this, &UbuntuServer::__OnTouch__);
             _timer = Dali::Timer::New(1000 / TICK_RATE);
             _timer.TickSignal().Connect(this, &UbuntuServer::__Update__);
             _timer.Start();
@@ -165,27 +185,40 @@ class UbuntuServer : public Dali::ConnectionTracker
 
         void _UpdateSlam(double elapsedTime)
         {
-            sensor->GetImage(_rgb, _depth);
-            slam->Update(_rgb, _depth, elapsedTime, _camera);
-            _netThread.UpdateCameraData(_camera.GetCurrentPosition(),
-                                        _camera.GetCurrentOrientation(),
-                                        _rgb, _depth);
+            if (_updateSlam)
+            {
+                sensor->GetImage(_rgb, _depth);
+                slam->Update(_rgb, _depth, elapsedTime, _cameraPos, _cameraRot);
+                _netThread.UpdateCameraData(_camera.GetCurrentPosition(),
+                                            _camera.GetCurrentOrientation(),
+                                            _rgb, _depth);
+            }
         }
 
         void _UpdatePlane()
         {
-            Eigen::Vector4f planeEq;
-            Eigen::Vector3f planePos;
+            Eigen::Vector4f eq;
+            Eigen::Vector3f pos;
             int inlierCount;
             if (_updatePlane)
             {
-                slam->GetPlane(planeEq, planePos, inlierCount);
+                slam->GetPlane(eq, pos, inlierCount);
                 if(inlierCount >= _planeInliers)
                 {
                     _planeInliers = inlierCount;
-                    _netThread.UpdatePlaneData(planeEq, planePos);
+                    _netThread.UpdatePlaneData(eq, pos);
+
+                    _planeNormal = Vec3(Eigen::Vector3f(eq(0), eq(1), eq(2)));
+                    _planeNormal.Normalize();
+                    if (_planeNormal.y > 0) _planeNormal = -_planeNormal;
+                    _planePos = Vec3(pos);
                 }
             }
+        }
+
+        void _UpdateScene(double deltaTime)
+        {
+            _scene->Update(deltaTime, _planeNormal, _planePos, _cameraPos, _cameraRot);
         }
 };
 

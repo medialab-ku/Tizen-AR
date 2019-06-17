@@ -13,6 +13,21 @@
  */
 class FrameActor
 {
+    protected:
+        Dali::Actor _actor;
+        Dali::Stage _stage;
+        Vec3 _position;
+        Quat _rotation;
+        Vec3 _size;
+        Vec3 _spaceBasisX, _spaceBasisY, _spaceBasisZ;
+        Vec3 _spaceOrigin;
+        //std::list<FrameActor*> _childs;
+        FrameActor *_parent;
+        FrameActor *_plane;
+
+    protected:
+        FrameActor(Dali::Stage &stage, Dali::Actor &actor);
+
     public:
         FrameActor(Dali::Stage &stage);
         virtual ~FrameActor();
@@ -35,6 +50,8 @@ class FrameActor
         void RemoveChild(FrameActor *child);
         void Unparent();
 
+        virtual void OnSpaceUpdated(FrameActor *plane, Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin);
+
         /*
         * Called at first frame right after the Dali::Actor is initialized.
         * Precisely, it is second frame since the system begun.
@@ -44,18 +61,6 @@ class FrameActor
         * Being called every timer event
         */
         virtual void OnUpdate(double deltaTime);
-
-    protected:
-        FrameActor(Dali::Stage &stage, Dali::Actor &actor);
-        
-    protected:
-        Dali::Actor _actor;
-        Dali::Stage _stage;
-        Vec3 _position;
-        Quat _rotation;
-        Vec3 _size;
-        std::list<FrameActor*> _childs;
-        FrameActor *_parent;
 };
 
 #endif

@@ -60,8 +60,6 @@ void NetThread::__Procedure__()
                 size_t encoded = Net::EncodeCameraData(buf, param_left, param_pos, param_rot);
                 size_t sent = Net::Send(Net::ID_CAM, buf, encoded);
                 delete[] buf;
-
-                std::cout << "Send Camera Data: " << sent << " bytes" << std::endl;
             }
             break;
 
@@ -75,8 +73,6 @@ void NetThread::__Procedure__()
                 size_t encoded = Net::EncodePlaneData(buf, param_eq, param_pos);
                 size_t sent = Net::Send(Net::ID_PLANE, buf, encoded);
                 delete[] buf;
-
-                std::cout << "Send Plane Data: " << sent << " bytes" << std::endl;
             }
             break;
         }

@@ -6,35 +6,54 @@
 #include <list>
 #include <iostream>
 #include "FrameActor.h"
+#include "GraphicsActor.h"
 #include "CameraFrameActor.h"
+#include "PrimitiveModels.h"
+
+class PlaneActor : public GraphicsActor
+{
+    public:
+        PlaneActor(Dali::Stage &stage, Model &model);
+        void OnSpaceUpdated(FrameActor *plane, Vec3 basisX, Vec3 basisY, Vec3 basisZ, Vec3 origin) override;
+};
 
 class Scene
 {
-    public:
-        Scene(Dali::Stage &stage, Dali::CameraActor &camera, Dali::Layer &uiLayer, FrameActor *plane);
-        void Update(double deltaTime);
+    protected:
+        // Essentials
+        // FrameActor is pointer since it can be created and removed at any time
+        std::list<FrameActor*> _actorList;
+        Dali::Stage _stage;
+        FrameActor *_plane;
+        CameraFrameActor *_camera;
+        Vec3 _basisX, _basisY, _basisZ;
+        Vec3 _origin;
 
     public:
-        virtual void Init() = 0;
+        Scene(Dali::Stage &stage, Dali::CameraActor &camera);
+        void Start();
+        void Update(double deltaTime, Vec3 planeNormal, Vec3 planeOrigin, Vec3 cameraPos, Quat cameraRot);
+        void KeyEvent(const Dali::KeyEvent &event);
+        void Touch(Dali::Actor actor, const Dali::TouchData &touch);
+
+        Vec3 GetBasisX() { return _basisX; }
+        Vec3 GetBasisY() { return _basisY; }
+        Vec3 GetBasisZ() { return _basisZ; }
+        Vec3 GetOrigin() { return _origin; }
+
+    protected:
         virtual void OnStart();
         virtual void OnUpdate(double deltaTime);
-        virtual void Dispose();
         virtual void OnKeyEvent(const Dali::KeyEvent &event);
         virtual void OnTouch(Dali::Actor actor, const Dali::TouchData &touch);
 
     protected:
         void AddActor(FrameActor *actor);
         void RemoveActor(FrameActor *actor);
-        void AddUI(Dali::Actor &ui);    // todo : Wrap with FrameActor
 
-    protected:
-        // Essentials
-        // FrameActor is pointer since it can be created and removed at any time
-        std::list<FrameActor*> _actorList;
-        Dali::Stage _stage;
-        Dali::Layer _uiLayer;
-        FrameActor *_plane;
-        CameraFrameActor *_camera;
+    private:
+        void _UpdatePlane(Vec3 planeNormal, Vec3 planeOrigin);
+        void _UpdateCamera(Vec3 cameraPos, Quat cameraRot);
 };
 
 #endif
