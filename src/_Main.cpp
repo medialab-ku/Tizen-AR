@@ -131,6 +131,12 @@ class UbuntuServer : public Dali::ConnectionTracker
                     Net::BeginServer(ip, 9999);
                 }
 
+                // p pressed
+                if (event.keyCode == 33)
+                {
+                    _updatePlane = not _updatePlane;
+                }
+
                 // spacebar pressed
                 if (event.keyCode == 65)
                 {

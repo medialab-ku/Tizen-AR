@@ -3,6 +3,7 @@
 
 #include <chrono>
 #include <thread>
+#include <vector>
 #include <opencv2/opencv.hpp>
 #include "Type.h"
 #include "Net.h"
@@ -22,6 +23,10 @@ class NetThread
 
     private:
         void __Procedure__();
+        void _SendCamData_raw();
+        void _SendCamData_resize();
+        void _SendCamData_cvjpeg();
+        void _SendCamData_cvpng();
 
     public:
         NetThread();
