@@ -44,22 +44,14 @@ void NetThread::__Procedure__()
         if (not Net::Receive()) continue;
 
         char id = Net::GetId();
-        std::cout << "Packet Id: " << (int)id << std::endl;
         switch (id)
         {
             case Net::ID_CAM:
             {
-                size_t imsize = _left.total() * _left.elemSize();
-                size_t posesize = 7 * sizeof(float);
-                size_t size = imsize + posesize;
-                char *buf = new char[size];
-                
-                Net::Mat param_left(_left.data, imsize);
-                Net::Vec3 param_pos(_camPos.x, _camPos.y, _camPos.z);
-                Net::Vec4 param_rot(_camRot.x, _camRot.y, _camRot.z, _camRot.w);
-                size_t encoded = Net::EncodeCameraData(buf, param_left, param_pos, param_rot);
-                size_t sent = Net::Send(Net::ID_CAM, buf, encoded);
-                delete[] buf;
+                //_SendCamData_raw();
+                _SendCamData_resize();
+                //_SendCamData_cvjpeg();
+                //_SendCamData_cvpng();
             }
             break;
 
@@ -77,4 +69,81 @@ void NetThread::__Procedure__()
             break;
         }
     }
+}
+
+void NetThread::_SendCamData_raw()
+{
+    // Prepare send buffer large enough
+    static char *sendBuff = new char[3000000];
+
+    size_t imsize = _left.total() * _left.elemSize();
+    
+    Net::Mat param_left(_left.data, imsize);
+    Net::Vec3 param_pos(_camPos.x, _camPos.y, _camPos.z);
+    Net::Vec4 param_rot(_camRot.x, _camRot.y, _camRot.z, _camRot.w);
+    size_t encoded = Net::EncodeCameraData(sendBuff, param_left, param_pos, param_rot);
+    size_t sent = Net::Send(Net::ID_CAM, sendBuff, encoded);
+}
+
+void NetThread::_SendCamData_resize()
+{
+    // Prepare send buffer large enough
+    static char *sendBuff = new char[3000000];
+
+    cv::resize(_left, _left, cv::Size(320, 240), 0, 0, CV_INTER_NN);
+    size_t imsize = _left.total() * _left.elemSize();
+    
+    Net::Mat param_left(_left.data, imsize);
+    Net::Vec3 param_pos(_camPos.x, _camPos.y, _camPos.z);
+    Net::Vec4 param_rot(_camRot.x, _camRot.y, _camRot.z, _camRot.w);
+    size_t encoded = Net::EncodeCameraData(sendBuff, param_left, param_pos, param_rot);
+    size_t sent = Net::Send(Net::ID_CAM, sendBuff, encoded);
+}
+
+void NetThread::_SendCamData_cvjpeg()
+{
+    // Prepare send buffer large enough
+    static char *sendBuff = new char[3000000];
+
+    std::vector<unsigned char> encodeImg;
+    std::vector<int> encodeParams;
+    encodeParams.push_back(CV_IMWRITE_JPEG_QUALITY);
+    encodeParams.push_back(50);
+    cv::imencode(".jpg", _left.clone(), encodeImg, encodeParams);
+
+    size_t imsize = encodeImg.size() * sizeof(char);
+    std::cout << "image size : " << imsize << std::endl;
+
+    Net::Mat param_left(&encodeImg[0], imsize);
+    Net::Vec3 param_pos(_camPos.x, _camPos.y, _camPos.z);
+    Net::Vec4 param_rot(_camRot.x, _camRot.y, _camRot.z, _camRot.w);
+    size_t encoded = Net::EncodeCameraData(sendBuff, param_left, param_pos, param_rot);
+    std::cout << "encoded : " << encoded << std::endl;
+    size_t sent = Net::Send(Net::ID_CAM, sendBuff, encoded);
+    encodeImg.clear();
+    encodeParams.clear();
+}
+
+void NetThread::_SendCamData_cvpng()
+{
+    // Prepare send buffer large enough
+    static char *sendBuff = new char[3000000];
+
+    std::vector<unsigned char> encodeImg;
+    std::vector<int> encodeParams;
+    encodeParams.push_back(CV_IMWRITE_PNG_COMPRESSION);
+    encodeParams.push_back(3);
+    cv::imencode(".png", _left.clone(), encodeImg, encodeParams);
+
+    size_t imsize = encodeImg.size() * sizeof(char);
+    std::cout << "image size : " << imsize << std::endl;
+
+    Net::Mat param_left(&encodeImg[0], imsize);
+    Net::Vec3 param_pos(_camPos.x, _camPos.y, _camPos.z);
+    Net::Vec4 param_rot(_camRot.x, _camRot.y, _camRot.z, _camRot.w);
+    size_t encoded = Net::EncodeCameraData(sendBuff, param_left, param_pos, param_rot);
+    std::cout << "encoded : " << encoded << std::endl;
+    size_t sent = Net::Send(Net::ID_CAM, sendBuff, encoded);
+    encodeImg.clear();
+    encodeParams.clear();
 }
