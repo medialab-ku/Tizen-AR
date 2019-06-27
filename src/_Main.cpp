@@ -77,7 +77,7 @@ class UbuntuServer : public Dali::ConnectionTracker
             _InitCamera();
             _InitSignals();
             _bg.Create(_stage);
-            _scene = new DebugScene(_stage, _camera);
+            _scene = new DebugScene(_stage, _camera, slam);
         }
 
         bool __Update__()

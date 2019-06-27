@@ -1,6 +1,9 @@
 #include "SLAM.h"
 
-SLAM::SLAM(SensorDevice &sensor) : _sensor(sensor)
+SLAM::SLAM(SensorDevice &sensor) : _sensor(sensor),
+                                   _eq(Eigen::Vector4f()),
+                                   _pos(Eigen::Vector3f()),
+                                   _inlierCount(0)
 {
     const std::string orb = "../res/SLAM/ORB.bin";
     const std::string settings = sensor.GetConfigPath();
@@ -39,5 +42,22 @@ void SLAM::Update(cv::Mat rgb, cv::Mat depth, double elapsedTime, Vec3 &outCamer
 
 void SLAM::GetPlane(Eigen::Vector4f &eq, Eigen::Vector3f &pos, int &inlierCount)
 {
-    _orb->GetPlaneDetector()->GetPlane(eq, pos, inlierCount);
+    try
+    {
+        if(_orb->GetTrackingState() == ORB_SLAM2::Tracking::eTrackingState::OK)
+        {
+            _orb->GetPlaneDetector()->GetPlane(_eq, _pos, _inlierCount);
+            
+        }
+        eq = _eq;
+        pos = _pos;
+        inlierCount = _inlierCount; 
+    }
+    catch(const std::exception& e)
+    {
+        cout << "tracking plane failed!" << endl;
+        eq = _eq;
+        pos = _pos;
+        inlierCount = _inlierCount; 
+    }
 }
